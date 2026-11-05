@@ -421,7 +421,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
                 Sarithala Chandu <span>&amp;</span> Vuluvalapalli Kulsum
               </h1>
               <p className="lang-gate-names-te" lang="te">
-                సరితల చాందు &amp; వులువలపల్లి కుల్సుమ్
+                సరితాల చాందు &amp; వులువలపల్లి కుల్సుమ్
               </p>
             </div>
 
