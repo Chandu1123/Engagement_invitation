@@ -29,14 +29,102 @@ function calculateTimeLeft(targetDateString, fallbackDateObj) {
 }
 
 /**
+ * Creative Celestial Pearl & Rose-Gold Medallion Dial for Countdown
+ */
+function CelestialCountdownDial({ value, label, progressPercent, isSeconds }) {
+  const radius = 26;
+  const circumference = 2 * Math.PI * radius;
+  const clamped = Math.max(4, Math.min(100, progressPercent));
+  const strokeDashoffset = circumference - (clamped / 100) * circumference;
+
+  return (
+    <div
+      className={`celestial-dial-item ${
+        isSeconds ? 'celestial-dial-item--pulse' : ''
+      }`}
+    >
+      <div className="celestial-dial-circle">
+        {/* Crown Pearl at 12 o'clock */}
+        <span className="dial-crown-pearl" aria-hidden="true" />
+
+        {/* Rotating Outer Filigree Halo + Live Progress Ring */}
+        <svg
+          className="celestial-dial-svg"
+          viewBox="0 0 64 64"
+          aria-hidden="true"
+        >
+          <defs>
+            <linearGradient
+              id={`dialGrad-${label}`}
+              x1="0%"
+              y1="0%"
+              x2="100%"
+              y2="100%"
+            >
+              <stop offset="0%" stopColor="#d88c9a" />
+              <stop offset="50%" stopColor="#9e3d55" />
+              <stop offset="100%" stopColor="#5e1b2c" />
+            </linearGradient>
+          </defs>
+
+          {/* Outer dotted pearl track */}
+          <circle
+            cx="32"
+            cy="32"
+            r="30"
+            fill="none"
+            stroke="rgba(181, 101, 118, 0.35)"
+            strokeWidth="1"
+            strokeDasharray="2 3.5"
+            className="dial-rotating-halo"
+          />
+
+          {/* Soft inner track */}
+          <circle
+            cx="32"
+            cy="32"
+            r={radius}
+            fill="rgba(255, 250, 252, 0.9)"
+            stroke="rgba(194, 120, 110, 0.22)"
+            strokeWidth="2.8"
+          />
+
+          {/* Animated Rose-Gold Progress Arc */}
+          <circle
+            cx="32"
+            cy="32"
+            r={radius}
+            fill="none"
+            stroke={`url(#dialGrad-${label})`}
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={strokeDashoffset}
+            transform="rotate(-90 32 32)"
+            className="dial-progress-arc"
+          />
+        </svg>
+
+        {/* Center Number */}
+        <div className="celestial-dial-center">
+          <span className="celestial-dial-number">{value}</span>
+        </div>
+      </div>
+
+      {/* Ribbon Pill Label */}
+      <span className="celestial-dial-label">{label}</span>
+    </div>
+  );
+}
+
+/**
  * InvitationBook
  *
  * Interactive Luxury Handcrafted Floral-Resin & Pearl Engagement Invitation Book:
- * - Mobile View: Genuine 3D Page-Turning Hardcover Book (Cover -> Blessings -> Venue & Maps)
- *   with bound velvet-gold spine, gilded stacked page edges, continuous 3D floating portrait,
- *   touch-tilt parallax, and ornate Islamic & floral resin details.
- * - Desktop View: Centered closed cover (Face of the book) on load, unfolding into a grand
- *   2-sided open book spread.
+ * - Guaranteed to ALWAYS start on the Front Cover (Face of the Book) on both Phone and Desktop.
+ * - Mobile View: 3D Page-Turning Hardcover Book (Cover -> Blessings -> Venue & Maps).
+ * - Desktop View: Centered closed cover unfolding into a 2-sided open book spread.
+ * - Creative Celestial Pearl & Rose-Gold Medallion Dials for the live countdown.
  */
 export default function InvitationBook({ config, onFirstOpen }) {
   const { couple, welcome, greeting, date, venue, dua, sharing } = config;
@@ -54,10 +142,10 @@ export default function InvitationBook({ config, onFirstOpen }) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Desktop book state: isOpen = false (Cover centered), true (2-Sided Open Spread)
+  // Desktop book state: ALWAYS starts false (Closed Front Cover)
   const [isOpen, setIsOpen] = useState(false);
 
-  // Mobile 3D book page index: 0 = Cover, 1 = Blessings & Couple, 2 = Venue & Map
+  // Mobile 3D book page index: ALWAYS starts 0 (Front Cover)
   const [mobilePage, setMobilePage] = useState(0);
 
   const touchStartXRef = useRef(null);
@@ -205,7 +293,6 @@ export default function InvitationBook({ config, onFirstOpen }) {
     const deltaY = Math.abs(
       e.changedTouches[0].clientY - (touchStartYRef.current || 0)
     );
-    // Horizontal swipe
     if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > deltaY) {
       if (deltaX < -40) handleNext();
       if (deltaX > 40) handlePrev();
@@ -440,160 +527,197 @@ export default function InvitationBook({ config, onFirstOpen }) {
     </>
   );
 
-  // 3. INSIDE PAGE 2 (Save The Date, Live Countdown, Venue & Google Maps)
-  const renderRightPageContent = () => (
-    <>
-      <CornerOrnament position="top-left" />
-      <CornerOrnament position="top-right" />
-      <CornerOrnament position="bottom-left" />
-      <CornerOrnament position="bottom-right" />
-      <MosqueArchCrown className="page-arch" />
+  // 3. INSIDE PAGE 2 (Save The Date, Creative Celestial Countdown & Venue)
+  const renderRightPageContent = () => {
+    const daysProgress = Math.min(100, Math.max(8, ((365 - (timeLeft.days % 365)) / 365) * 100));
+    const hoursProgress = (timeLeft.hours / 24) * 100;
+    const minsProgress = (timeLeft.minutes / 60) * 100;
+    const secsProgress = (timeLeft.seconds / 60) * 100;
 
-      <div className="page-body">
-        <span className="section-eyebrow">✦ Save The Date ✦</span>
+    return (
+      <>
+        <CornerOrnament position="top-left" />
+        <CornerOrnament position="top-right" />
+        <CornerOrnament position="bottom-left" />
+        <CornerOrnament position="bottom-right" />
+        <MosqueArchCrown className="page-arch" />
 
-        {/* Royal 3-Column Date Showcase */}
-        <div className="royal-date-showcase">
-          <span className="date-col-side">{date.dayOfWeek}</span>
-          <div className="date-col-center">
-            <span className="date-month-label">{date.monthName}</span>
-            <span className="date-day-giant">{date.dayOfMonth}</span>
+        <div className="page-body">
+          <span className="section-eyebrow">✦ Save The Date ✦</span>
+
+          {/* Royal 3-Column Date Showcase */}
+          <div className="royal-date-showcase">
+            <span className="date-col-side">{date.dayOfWeek}</span>
+            <div className="date-col-center">
+              <span className="date-month-label">{date.monthName}</span>
+              <span className="date-day-giant">{date.dayOfMonth}</span>
+            </div>
+            <span className="date-col-side">{date.year}</span>
           </div>
-          <span className="date-col-side">{date.year}</span>
-        </div>
 
-        {/* Live 4-Box Countdown Timer */}
-        {timeLeft.isComplete ? (
-          <div className="countdown-complete-banner">
-            <h3>Alhamdulillah! Today is the Engagement Day</h3>
-          </div>
-        ) : (
-          <div className="book-countdown-boxes" role="timer">
-            {[
-              { label: 'Days', value: padNumber(timeLeft.days) },
-              { label: 'Hours', value: padNumber(timeLeft.hours) },
-              { label: 'Mins', value: padNumber(timeLeft.minutes) },
-              { label: 'Secs', value: padNumber(timeLeft.seconds) },
-            ].map((unit) => (
-              <div key={unit.label} className="countdown-unit-card">
-                <span className="countdown-number">{unit.value}</span>
-                <span className="countdown-label">{unit.label}</span>
+          {/* Creative Celestial Pearl & Rose-Gold Medallion Countdown */}
+          {timeLeft.isComplete ? (
+            <div className="countdown-complete-banner">
+              <h3>✨ Alhamdulillah! Today is Our Engagement Day ✨</h3>
+            </div>
+          ) : (
+            <div className="creative-countdown-stage" role="timer">
+              <div className="countdown-poetic-pill">
+                <span className="hourglass-sparkle">⏳</span>
+                <span>Counting Every Blessed Moment</span>
+                <span className="hourglass-sparkle">✨</span>
               </div>
-            ))}
-          </div>
-        )}
 
-        <FloralGoldDivider />
+              <div className="celestial-dials-row">
+                <CelestialCountdownDial
+                  value={padNumber(timeLeft.days)}
+                  label="Days"
+                  progressPercent={daysProgress}
+                  isSeconds={false}
+                />
+                <span className="dial-star-connector" aria-hidden="true">
+                  ✦
+                </span>
+                <CelestialCountdownDial
+                  value={padNumber(timeLeft.hours)}
+                  label="Hours"
+                  progressPercent={hoursProgress}
+                  isSeconds={false}
+                />
+                <span className="dial-star-connector" aria-hidden="true">
+                  ✦
+                </span>
+                <CelestialCountdownDial
+                  value={padNumber(timeLeft.minutes)}
+                  label="Mins"
+                  progressPercent={minsProgress}
+                  isSeconds={false}
+                />
+                <span className="dial-star-connector" aria-hidden="true">
+                  ✦
+                </span>
+                <CelestialCountdownDial
+                  value={padNumber(timeLeft.seconds)}
+                  label="Secs"
+                  progressPercent={secsProgress}
+                  isSeconds={true}
+                />
+              </div>
+            </div>
+          )}
 
-        {/* Ceremony Venue & Direct Actions */}
-        <div className="book-venue-block">
-          <div className="venue-icon-badge" aria-hidden="true">
-            <svg
-              width="17"
-              height="17"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-              <circle cx="12" cy="10" r="3" />
-            </svg>
-          </div>
+          <FloralGoldDivider />
 
-          <span className="section-eyebrow">Ceremony Venue</span>
-          <h3 className="book-venue-title">{venue.name}</h3>
-          <p className="venue-clean-address">
-            {venue.addressLine1}
-            {venue.cityStateZip ? `, ${venue.cityStateZip}` : ''}
-          </p>
-
-          <div className="right-page-actions">
-            <a
-              href={venue.googleMapsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-gold-primary btn-compact"
-              onClick={(e) => e.stopPropagation()}
-            >
+          {/* Ceremony Venue & Direct Actions */}
+          <div className="book-venue-block">
+            <div className="venue-icon-badge" aria-hidden="true">
               <svg
-                width="15"
-                height="15"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.2"
-              >
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                <circle cx="12" cy="10" r="3" />
-              </svg>
-              <span>Open Google Maps Location</span>
-            </a>
-
-            <button
-              type="button"
-              onClick={handleShareOnWhatsApp}
-              className="btn-whatsapp-compact"
-              title="Share invitation on WhatsApp"
-            >
-              <svg
-                width="14"
-                height="14"
+                width="17"
+                height="17"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
               >
-                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
               </svg>
-              <span>Share on WhatsApp</span>
-            </button>
+            </div>
+
+            <span className="section-eyebrow">Ceremony Venue</span>
+            <h3 className="book-venue-title">{venue.name}</h3>
+            <p className="venue-clean-address">
+              {venue.addressLine1}
+              {venue.cityStateZip ? `, ${venue.cityStateZip}` : ''}
+            </p>
+
+            <div className="right-page-actions">
+              <a
+                href={venue.googleMapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-gold-primary btn-compact"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                >
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                <span>Open Google Maps Location</span>
+              </a>
+
+              <button
+                type="button"
+                onClick={handleShareOnWhatsApp}
+                className="btn-whatsapp-compact"
+                title="Share invitation on WhatsApp"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                </svg>
+                <span>Share on WhatsApp</span>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="page-footer-row">
-        {isMobile ? (
-          <>
-            <button
-              type="button"
-              className="page-corner-btn"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleGoToMobilePage(1);
-              }}
-              title="Back to Blessings page"
-            >
-              ← Blessings
-            </button>
-            <button
-              type="button"
-              className="page-corner-btn page-corner-btn--highlight"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleGoToMobilePage(0);
-              }}
-              title="Return to Front Cover"
-            >
-              Cover ↺
-            </button>
-          </>
-        ) : (
-          <>
-            <span className="page-num-label">Venue &amp; Date</span>
-            <button
-              type="button"
-              className="page-corner-btn page-corner-btn--highlight"
-              onClick={handlePrev}
-              title="Move backward to cover"
-            >
-              ← Back to Cover
-            </button>
-          </>
-        )}
-      </div>
-    </>
-  );
+        <div className="page-footer-row">
+          {isMobile ? (
+            <>
+              <button
+                type="button"
+                className="page-corner-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleGoToMobilePage(1);
+                }}
+                title="Back to Blessings page"
+              >
+                ← Blessings
+              </button>
+              <button
+                type="button"
+                className="page-corner-btn page-corner-btn--highlight"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleGoToMobilePage(0);
+                }}
+                title="Return to Front Cover"
+              >
+                Cover ↺
+              </button>
+            </>
+          ) : (
+            <>
+              <span className="page-num-label">Venue &amp; Date</span>
+              <button
+                type="button"
+                className="page-corner-btn page-corner-btn--highlight"
+                onClick={handlePrev}
+                title="Move backward to cover"
+              >
+                ← Back to Cover
+              </button>
+            </>
+          )}
+        </div>
+      </>
+    );
+  };
 
   // --------------------------------------------------------------------------
   // RENDER COMPONENT
@@ -715,7 +839,8 @@ export default function InvitationBook({ config, onFirstOpen }) {
         {isMobile ? (
           /* ================================================================
              MOBILE VIEW: 3D Page-Turning Hardcover Book
-             Each sheet hinges on the left velvet-gold spine & flips in 3D!
+             DOM order: Sheet 2 (bottom) -> Sheet 1 (middle) -> Sheet 0 Cover (TOP)
+             Guaranteed to ALWAYS start on Sheet 0 (Front Cover)!
              ================================================================ */
           <div className="mobile-3d-book">
             {/* Bound Velvet & Gold Left Spine */}
@@ -730,22 +855,20 @@ export default function InvitationBook({ config, onFirstOpen }) {
             {/* Stacked Gilded Paper Edges on Right & Bottom */}
             <div className="mobile-book-edges" aria-hidden="true" />
 
-            {/* SHEET 0: FRONT COVER (Face of the Book) */}
+            {/* SHEET 2 (Base in DOM): INSIDE PAGE 2 (Save the Date, Countdown & Venue) */}
             <div
-              className={`mobile-3d-sheet mobile-sheet--cover ${
-                mobilePage > 0 ? 'mobile-sheet--turned' : 'mobile-sheet--active'
+              className={`mobile-3d-sheet mobile-sheet--page2 ${
+                mobilePage === 2 ? 'mobile-sheet--active' : 'mobile-sheet--under'
               }`}
-              onClick={mobilePage === 0 ? () => handleGoToMobilePage(1) : undefined}
-              role={mobilePage === 0 ? 'button' : undefined}
-              tabIndex={mobilePage === 0 ? 0 : -1}
-              aria-label="Open Invitation Book"
+              aria-hidden={mobilePage !== 2}
             >
-              <div className="leaf-face cover-face mobile-sheet-face">
-                {renderCoverContent()}
+              <div className="leaf-face page-right mobile-sheet-face">
+                <div className="cover-spine-trim" aria-hidden="true" />
+                {renderRightPageContent()}
               </div>
             </div>
 
-            {/* SHEET 1: INSIDE PAGE 1 (Blessings & Couple) */}
+            {/* SHEET 1 (Middle in DOM): INSIDE PAGE 1 (Blessings & Couple) */}
             <div
               className={`mobile-3d-sheet mobile-sheet--page1 ${
                 mobilePage > 1
@@ -754,6 +877,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
                   ? 'mobile-sheet--active'
                   : 'mobile-sheet--under'
               }`}
+              aria-hidden={mobilePage !== 1}
             >
               <div className="leaf-face page-right mobile-sheet-face">
                 <div className="cover-spine-trim" aria-hidden="true" />
@@ -761,21 +885,27 @@ export default function InvitationBook({ config, onFirstOpen }) {
               </div>
             </div>
 
-            {/* SHEET 2: INSIDE PAGE 2 (Save the Date, Countdown & Venue) */}
+            {/* SHEET 0 (Top in DOM): FRONT COVER (Face of the Book) */}
             <div
-              className={`mobile-3d-sheet mobile-sheet--page2 ${
-                mobilePage === 2 ? 'mobile-sheet--active' : 'mobile-sheet--under'
+              className={`mobile-3d-sheet mobile-sheet--cover ${
+                mobilePage > 0 ? 'mobile-sheet--turned' : 'mobile-sheet--active'
               }`}
+              onClick={mobilePage === 0 ? () => handleGoToMobilePage(1) : undefined}
+              role={mobilePage === 0 ? 'button' : undefined}
+              tabIndex={mobilePage === 0 ? 0 : -1}
+              aria-hidden={mobilePage !== 0}
+              aria-label="Open Invitation Book"
             >
-              <div className="leaf-face page-right mobile-sheet-face">
-                <div className="cover-spine-trim" aria-hidden="true" />
-                {renderRightPageContent()}
+              <div className="leaf-face cover-face mobile-sheet-face">
+                {renderCoverContent()}
               </div>
             </div>
           </div>
         ) : (
           /* ================================================================
              DESKTOP VIEW: Centered closed cover unfolding into 2-sided spread
+             DOM order: Static Right Page first (hidden when closed),
+             Hinged Cover Leaf last (on top when closed)!
              ================================================================ */
           <div
             className={`twoside-book ${
@@ -785,11 +915,21 @@ export default function InvitationBook({ config, onFirstOpen }) {
             <div className="twoside-center-spine" aria-hidden="true" />
             <div className="book-page-depth-layers" aria-hidden="true" />
 
+            {/* BASE: RIGHT PAGE (First in DOM, hidden when book is closed so Cover is 100% on top) */}
+            <div
+              className={`book-static-right page-right ${
+                !isOpen ? 'book-static-right--hidden' : ''
+              }`}
+              aria-hidden={!isOpen}
+            >
+              {renderRightPageContent()}
+            </div>
+
+            {/* HINGED COVER LEAF (Last in DOM so Front Cover is guaranteed on top when closed) */}
             <div
               className={`book-leaf cover-leaf ${
                 isOpen ? 'book-leaf--turned' : ''
               }`}
-              style={{ zIndex: isOpen ? 20 : 35 }}
             >
               {/* FRONT: 3D ANIMATED COUPLE COVER */}
               <div
@@ -806,11 +946,6 @@ export default function InvitationBook({ config, onFirstOpen }) {
               <div className="leaf-face leaf-back page-left">
                 {renderLeftPageContent()}
               </div>
-            </div>
-
-            {/* BASE: RIGHT PAGE */}
-            <div className="book-static-right page-right">
-              {renderRightPageContent()}
             </div>
           </div>
         )}

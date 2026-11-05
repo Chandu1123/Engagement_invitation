@@ -1983,12 +1983,14 @@ body {
 .mobile-sheet--active {
   transform: rotateY(0deg);
   opacity: 1;
+  visibility: visible;
   pointer-events: auto;
 }
 
 .mobile-sheet--under {
-  transform: rotateY(0deg) scale(0.992);
-  opacity: 1;
+  transform: rotateY(0deg) scale(0.96);
+  opacity: 0;
+  visibility: hidden;
   pointer-events: none;
 }
 
@@ -1996,6 +1998,7 @@ body {
 .mobile-sheet--turned {
   transform: rotateY(-130deg);
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
 }
 
@@ -2163,5 +2166,212 @@ body {
   .nav-btn-pill {
     padding: 0.34rem 0.75rem;
     font-size: 0.7rem;
+  }
+}
+
+
+/* ==========================================================================
+   DESKTOP COVER GUARANTEE & CREATIVE CELESTIAL MEDALLION COUNTDOWN
+   ========================================================================== */
+
+/* Hide static right page when desktop book is closed so Front Cover is 100% on top */
+.book-static-right {
+  transition: opacity 0.45s ease, visibility 0.45s ease;
+}
+
+.book-static-right--hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Also ensure back of cover leaf is hidden when book is closed */
+.twoside-book--closed .leaf-back {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.twoside-book--open .leaf-front {
+  pointer-events: none;
+}
+
+/* Creative Celestial Pearl & Rose-Gold Medallion Countdown */
+.creative-countdown-stage {
+  width: 98%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.22rem, 0.7vh, 0.42rem);
+  margin: 0.05rem 0;
+}
+
+.countdown-poetic-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  padding: 0.14rem 0.72rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(194, 120, 110, 0.4);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 700;
+  font-size: clamp(0.62rem, 1.15vh, 0.75rem);
+  color: var(--ink-800);
+  box-shadow: 0 2px 8px rgba(110, 35, 54, 0.07);
+}
+
+.hourglass-sparkle {
+  font-style: normal;
+  font-size: 0.72rem;
+}
+
+.celestial-dials-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.18rem, 0.8vw, 0.42rem);
+  width: 100%;
+}
+
+.dial-star-connector {
+  color: var(--rose-gold-deep);
+  font-size: clamp(0.55rem, 1vh, 0.75rem);
+  opacity: 0.75;
+  margin-bottom: 14px;
+  animation: connectorTwinkle 2s ease-in-out infinite alternate;
+}
+
+@keyframes connectorTwinkle {
+  0% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 0.95;
+    transform: scale(1.15);
+  }
+}
+
+.celestial-dial-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.12rem;
+  position: relative;
+}
+
+.celestial-dial-circle {
+  position: relative;
+  width: clamp(54px, 8.2vh, 68px);
+  height: clamp(54px, 8.2vh, 68px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 5px 12px rgba(110, 35, 54, 0.14));
+}
+
+/* Lustrous 3D Pearl at 12-o'clock of each dial */
+.dial-crown-pearl {
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffffff 0%, #fceef1 55%, #c58376 100%);
+  border: 1px solid #a85869;
+  box-shadow: 0 1px 4px rgba(110, 35, 54, 0.3);
+  z-index: 4;
+}
+
+.celestial-dial-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.dial-rotating-halo {
+  transform-origin: 32px 32px;
+  animation: slowHaloSpin 18s linear infinite;
+}
+
+@keyframes slowHaloSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.dial-progress-arc {
+  transition: stroke-dashoffset 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.celestial-dial-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.celestial-dial-number {
+  font-family: var(--font-display);
+  font-size: clamp(0.92rem, 1.95vh, 1.22rem);
+  font-weight: 700;
+  color: var(--ink-900);
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9);
+}
+
+.celestial-dial-item--pulse .celestial-dial-number {
+  color: #8c2d45;
+  animation: secHeartbeat 1s ease-in-out infinite;
+}
+
+@keyframes secHeartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.09);
+  }
+}
+
+/* Floating Rose-Petal Ribbon Label beneath each dial */
+.celestial-dial-label {
+  font-family: var(--font-sans);
+  font-size: clamp(0.48rem, 0.85vh, 0.58rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #fff9fb;
+  background: linear-gradient(135deg, #9e475b 0%, #6d2235 100%);
+  padding: 0.1rem 0.48rem;
+  border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(110, 35, 54, 0.2);
+  margin-top: -4px;
+  z-index: 3;
+}
+
+@media (max-width: 768px) {
+  .celestial-dial-circle {
+    width: clamp(58px, 16vw, 68px);
+    height: clamp(58px, 16vw, 68px);
+  }
+
+  .celestial-dial-number {
+    font-size: clamp(1rem, 2.2vh, 1.25rem);
+  }
+
+  .celestial-dial-label {
+    font-size: 0.54rem;
+    padding: 0.12rem 0.52rem;
   }
 }
