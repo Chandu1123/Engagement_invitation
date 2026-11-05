@@ -150,6 +150,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
 
   const touchStartXRef = useRef(null);
   const touchStartYRef = useRef(null);
+  const lastNavTimeRef = useRef(0);
 
   // 3D Parallax Tilt state for front cover portrait (Mouse + Touch)
   const [tilt, setTilt] = useState({ x: 0, y: 0, glareX: 50, glareY: 50 });
@@ -237,6 +238,9 @@ export default function InvitationBook({ config, onFirstOpen }) {
   // Mobile page navigation
   const handleGoToMobilePage = useCallback(
     (pageIdx) => {
+      const now = Date.now();
+      if (now - lastNavTimeRef.current < 350) return;
+      lastNavTimeRef.current = now;
       if (pageIdx > 0) {
         triggerOpenAudio();
         setIsOpen(true);
@@ -863,7 +867,6 @@ export default function InvitationBook({ config, onFirstOpen }) {
               aria-hidden={mobilePage !== 2}
             >
               <div className="leaf-face page-right mobile-sheet-face">
-                <div className="cover-spine-trim" aria-hidden="true" />
                 {renderRightPageContent()}
               </div>
             </div>
@@ -880,7 +883,6 @@ export default function InvitationBook({ config, onFirstOpen }) {
               aria-hidden={mobilePage !== 1}
             >
               <div className="leaf-face page-right mobile-sheet-face">
-                <div className="cover-spine-trim" aria-hidden="true" />
                 {renderLeftPageContent()}
               </div>
             </div>
