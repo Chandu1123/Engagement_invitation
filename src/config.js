@@ -39,7 +39,7 @@ const invitationConfig = {
   },
 
   // --------------------------------------------------------------------------
-  // 3. ENGAGEMENT DATE & TIME CONFIGURATION
+  // 3. ENGAGEMENT DATE CONFIGURATION
   // --------------------------------------------------------------------------
   date: {
     dayOfMonth: 13,
@@ -47,10 +47,10 @@ const invitationConfig = {
     monthNumber: 12, // 1 = January ... 12 = December
     year: 2026, // Configurable year
     dayOfWeek: "Sunday",
-    startTimeDisplay: "6:00 PM Onwards",
+    startTimeDisplay: "",
     // ISO 8601 timestamp used by the Live Countdown Timer
-    isoStartDateTime: "2026-12-13T18:00:00+05:30",
-    isoEndDateTime: "2026-12-13T22:00:00+05:30",
+    isoStartDateTime: "2026-12-13T00:00:00+05:30",
+    isoEndDateTime: "2026-12-13T23:59:59+05:30",
   },
 
   // --------------------------------------------------------------------------

@@ -35,6 +35,7 @@ function calculateTimeLeft(targetDateString, fallbackDateObj) {
  * - When opened, the cover swings 180° to the left, revealing the full 2-sided book spread.
  * - Left Page: Bismillah, Greeting, Couple Names & Islamic Blessing Dua.
  * - Right Page: Date, Live Countdown Timer, Venue & Google Maps button.
+ * - Timing omitted per user request.
  * - WhatsApp share option is conveniently placed in the header & quick-actions bar.
  * - Zero webpage scrolling; fully responsive across all screens.
  */
@@ -54,12 +55,12 @@ export default function InvitationBook({ config, onFirstOpen }) {
       ? couple.groomFullName
       : couple.brideFullName;
 
-  // Live countdown timer state
+  // Live countdown timer state (counts down to engagement date)
   const fallbackDate = new Date(
     date.year,
     date.monthNumber - 1,
     date.dayOfMonth,
-    18,
+    0,
     0,
     0
   );
@@ -395,7 +396,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
                 <h3 className="book-venue-title">{venue.name}</h3>
                 <p className="venue-clean-details">
                   {date.dayOfWeek}, {date.monthName} {date.dayOfMonth},{' '}
-                  {date.year} • {date.startTimeDisplay}
+                  {date.year}
                 </p>
                 <p className="venue-clean-address">
                   {venue.addressLine1}
