@@ -1194,3 +1194,223 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* ==========================================================================
+   3D ANIMATED COUPLE FACE & PARALLAX PORTRAIT
+   ========================================================================== */
+
+.cover-page-body {
+  gap: clamp(0.12rem, 0.6vh, 0.35rem) !important;
+  justify-content: space-evenly;
+}
+
+.cover-header-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.arabic-bismillah-cover {
+  font-family: var(--font-arabic);
+  font-size: clamp(0.92rem, 1.9vh, 1.25rem);
+  color: var(--ink-900);
+  line-height: 1.2;
+  margin: 0;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.85);
+}
+
+/* 3D Parallax Portrait Wrapper */
+.cover-portrait-wrapper {
+  position: relative;
+  width: clamp(140px, 19vw, 205px);
+  height: clamp(165px, 24vh, 245px);
+  margin: 0.1rem auto;
+  border-radius: 50% 50% 18px 18px / 30% 30% 18px 18px;
+  transform-style: preserve-3d;
+  transition: transform 0.16s cubic-bezier(0.2, 0.8, 0.2, 1);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.portrait-glow-halo {
+  position: absolute;
+  inset: -10px;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle,
+    rgba(235, 180, 196, 0.65) 0%,
+    rgba(212, 137, 156, 0.28) 50%,
+    transparent 75%
+  );
+  filter: blur(10px);
+  z-index: 1;
+  pointer-events: none;
+  animation: haloBreath 4s ease-in-out infinite alternate;
+}
+
+@keyframes haloBreath {
+  0% {
+    opacity: 0.6;
+    transform: scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+.portrait-arch-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+  border: 2.5px solid var(--rose-gold-primary);
+  box-shadow: 0 12px 28px rgba(95, 25, 45, 0.28),
+    inset 0 0 14px rgba(255, 255, 255, 0.5),
+    0 0 0 1.5px rgba(255, 255, 255, 0.8);
+  z-index: 2;
+  background: #fbf1f4;
+}
+
+.cover-portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.cover-portrait-wrapper:hover .cover-portrait-img {
+  transform: scale(1.04);
+}
+
+.portrait-shimmer-glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  z-index: 3;
+  transition: opacity 0.3s ease;
+}
+
+.portrait-gold-rim {
+  position: absolute;
+  inset: 3px;
+  border: 1px dashed rgba(212, 137, 156, 0.5);
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.cover-info-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.08rem, 0.35vh, 0.2rem);
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.welcome-badge-cover {
+  font-family: var(--font-sans);
+  font-size: clamp(0.52rem, 0.95vh, 0.65rem);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-800);
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--resin-border);
+  padding: 0.14rem 0.68rem;
+  border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(110, 35, 54, 0.08);
+}
+
+.cover-tap-prompt {
+  font-family: var(--font-sans);
+  font-size: clamp(0.58rem, 1vh, 0.7rem);
+  font-weight: 600;
+  color: var(--rose-gold-deep);
+  letter-spacing: 0.04em;
+  opacity: 0.85;
+  animation: promptFade 2.5s ease-in-out infinite alternate;
+  margin-top: 0.08rem;
+}
+
+@keyframes promptFade {
+  0% {
+    opacity: 0.5;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+/* Ambient Floating Petals & Sparkles on Cover */
+.cover-ambient-effects {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 5;
+}
+
+.floating-petal {
+  position: absolute;
+  font-size: clamp(0.8rem, 1.6vh, 1.15rem);
+  opacity: 0.75;
+  filter: drop-shadow(0 2px 4px rgba(130, 40, 60, 0.25));
+  animation: petalDrift 7s ease-in-out infinite alternate;
+}
+
+.petal-1 {
+  top: 10%;
+  left: 8%;
+  animation-duration: 6s;
+  animation-delay: 0s;
+}
+
+.petal-2 {
+  top: 25%;
+  right: 10%;
+  animation-duration: 8s;
+  animation-delay: 1.5s;
+}
+
+.petal-3 {
+  bottom: 28%;
+  left: 10%;
+  animation-duration: 5.5s;
+  animation-delay: 2.2s;
+}
+
+.petal-4 {
+  bottom: 12%;
+  right: 12%;
+  animation-duration: 7.2s;
+  animation-delay: 0.8s;
+}
+
+.petal-5 {
+  top: 48%;
+  right: 6%;
+  animation-duration: 6.5s;
+  animation-delay: 3s;
+}
+
+@keyframes petalDrift {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(0.9);
+  }
+  50% {
+    transform: translateY(-12px) rotate(18deg) scale(1.08);
+  }
+  100% {
+    transform: translateY(10px) rotate(-14deg) scale(0.95);
+  }
+}

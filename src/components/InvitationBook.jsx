@@ -31,8 +31,10 @@ function calculateTimeLeft(targetDateString, fallbackDateObj) {
 
 /**
  * Luxury Hardcover Invitation Book
+ * - Front Face: 3D Animated Pixar/Disney style couple character portrait
+ *   (Sarithala Chandu & Vuluvalapalli Kulsum) with interactive 3D parallax tilt,
+ *   glowing halo, floating petals, Arabic Bismillah, and luxury calligraphy.
  * - Starts with the closed front cover on the right side of the spine.
- * - Cover is clean and pristine with no clunky open buttons.
  * - Clear forward (Next →) and backward (← Previous) navigation controls:
  *   - Side floating navigation arrows on left and right
  *   - Bottom navigation bar with Previous / Next buttons & page indicators
@@ -50,6 +52,26 @@ export default function InvitationBook({ config, onFirstOpen }) {
   // isOpen: false = Closed Cover on Right, true = Open 2-Sided Book Spread
   const [isOpen, setIsOpen] = useState(false);
   const touchStartXRef = useRef(null);
+
+  // 3D Parallax Tilt state for front cover portrait
+  const [tilt, setTilt] = useState({ x: 0, y: 0, glareX: 50, glareY: 50 });
+
+  const handleCoverMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * -12;
+    const rotateY = ((x - centerX) / centerX) * 12;
+    const glareX = (x / rect.width) * 100;
+    const glareY = (y / rect.height) * 100;
+    setTilt({ x: rotateX, y: rotateY, glareX, glareY });
+  };
+
+  const handleCoverMouseLeave = () => {
+    setTilt({ x: 0, y: 0, glareX: 50, glareY: 50 });
+  };
 
   const firstPerson =
     couple.order === 'bride-first'
@@ -237,7 +259,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
 
           {/* ================================================================
               HINGED COVER LEAF:
-              - Front Face (rotateY 0°): Closed Front Cover (starts on right of spine)
+              - Front Face (rotateY 0°): 3D Animated Couple Face (starts on right of spine)
               - Back Face (rotateY 180°): Left Page (Bismillah, Salam, Couple, Dua)
               ================================================================ */}
           <div
@@ -246,7 +268,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
             }`}
             style={{ zIndex: isOpen ? 20 : 35 }}
           >
-            {/* FRONT FACE: HARDCOVER FRONT (Visible when book is closed) */}
+            {/* FRONT FACE: 3D ANIMATED COUPLE BOOK COVER */}
             <div
               className="leaf-face leaf-front cover-face"
               onClick={!isOpen ? handleOpenBook : undefined}
@@ -263,36 +285,73 @@ export default function InvitationBook({ config, onFirstOpen }) {
               <CornerOrnament position="bottom-left" />
               <CornerOrnament position="bottom-right" />
 
-              <MosqueArchCrown className="page-arch" />
+              {/* Ambient Floating Rose Petals & Sparkles */}
+              <div className="cover-ambient-effects" aria-hidden="true">
+                <span className="floating-petal petal-1">🌸</span>
+                <span className="floating-petal petal-2">🌸</span>
+                <span className="floating-petal petal-3">✨</span>
+                <span className="floating-petal petal-4">🌸</span>
+                <span className="floating-petal petal-5">✨</span>
+              </div>
 
-              <div className="page-body">
-                <CrescentMoonIcon size={36} />
-
-                <p className="arabic-bismillah" lang="ar" dir="rtl">
-                  {welcome.bismillahArabic}
-                </p>
-                <p className="bismillah-translation">
-                  {welcome.bismillahTranslation}
-                </p>
-
-                <FloralGoldDivider />
-
-                <span className="welcome-badge">{welcome.badgeText}</span>
-
-                <div className="welcome-monogram-seal" aria-hidden="true">
-                  <span>{couple.monogram}</span>
+              <div className="page-body cover-page-body">
+                {/* Header Bismillah Calligraphy */}
+                <div className="cover-header-group">
+                  <p className="arabic-bismillah-cover" lang="ar" dir="rtl">
+                    {welcome.bismillahArabic}
+                  </p>
                 </div>
 
-                <h1 className="book-cover-names">
-                  <span>{firstPerson}</span>
-                  <span className="book-ampersand">with</span>
-                  <span>{secondPerson}</span>
-                </h1>
+                {/* 3D Animated Couple Portrait with Interactive Parallax Tilt */}
+                <div
+                  className="cover-portrait-wrapper"
+                  onMouseMove={handleCoverMouseMove}
+                  onMouseLeave={handleCoverMouseLeave}
+                  style={{
+                    transform: `perspective(750px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale3d(1.02, 1.02, 1.02)`,
+                  }}
+                  title="3D Animated Couple: Sarithala Chandu & Vuluvalapalli Kulsum"
+                >
+                  <div className="portrait-glow-halo" aria-hidden="true" />
+                  <div className="portrait-arch-frame">
+                    <img
+                      src="./images/couple-3d.png"
+                      alt="3D Animated Couple — Sarithala Chandu & Vuluvalapalli Kulsum"
+                      className="cover-portrait-img"
+                      loading="eager"
+                    />
+                    <div
+                      className="portrait-shimmer-glare"
+                      style={{
+                        background: `radial-gradient(circle at ${tilt.glareX}% ${tilt.glareY}%, rgba(255,255,255,0.48) 0%, rgba(255,255,255,0.05) 45%, transparent 70%)`,
+                      }}
+                      aria-hidden="true"
+                    />
+                    <div className="portrait-gold-rim" aria-hidden="true" />
+                  </div>
+                </div>
 
-                <p className="welcome-date-pill">
-                  {date.dayOfWeek}, {date.monthName} {date.dayOfMonth},{' '}
-                  {date.year}
-                </p>
+                {/* Title & Couple Names */}
+                <div className="cover-info-group">
+                  <span className="welcome-badge-cover">
+                    ✦ {welcome.badgeText} ✦
+                  </span>
+
+                  <h1 className="book-cover-names">
+                    <span>{firstPerson}</span>
+                    <span className="book-ampersand">with</span>
+                    <span>{secondPerson}</span>
+                  </h1>
+
+                  <p className="welcome-date-pill">
+                    {date.dayOfWeek}, {date.monthName} {date.dayOfMonth},{' '}
+                    {date.year}
+                  </p>
+
+                  <span className="cover-tap-prompt">
+                    Tap to open or click Next →
+                  </span>
+                </div>
               </div>
             </div>
 
