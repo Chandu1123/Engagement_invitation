@@ -8,7 +8,7 @@ import {
 } from './IslamicOrnaments';
 
 /**
- * Compute remaining time until target ISO date
+ * Calculate countdown remaining time until the engagement date
  */
 function calculateTimeLeft(targetDateString, fallbackDateObj) {
   const targetTime =
@@ -30,19 +30,16 @@ function calculateTimeLeft(targetDateString, fallbackDateObj) {
 }
 
 /**
- * InvitationBook Component
- * A true 2-sided 3D opening book with hinged leaves (Front/Back faces)
- * and zero webpage scrolling.
- *
- * Spreads:
- * - spread 0: Closed Front Cover
- * - spread 1: Open Book (Left: Invitation & Couple | Right: Countdown & Location)
- * - spread 2: Open Book (Left: Islamic Blessing Dua | Right: Share on WhatsApp)
+ * Luxury Hardcover Invitation Book
+ * - Starts with the closed front cover on the right side of the spine.
+ * - When opened, the cover swings 180 degrees to the left, unfolding into an authentic 2-sided book spread.
+ * - Leaf 2 flips over to reveal Spread 2 (Dua & WhatsApp sharing).
+ * - Zero vertical or horizontal scrolling; fully adaptive across all screen sizes.
  */
 export default function InvitationBook({ config, onFirstOpen }) {
   const { couple, welcome, greeting, date, venue, dua, sharing } = config;
 
-  // spread: 0 = Closed Cover, 1 = Open Spread 1 (Pages 1 & 2), 2 = Open Spread 2 (Pages 3 & 4)
+  // spread: 0 = Closed Cover, 1 = Pages 1 & 2 (Spread 1), 2 = Pages 3 & 4 (Spread 2)
   const [spread, setSpread] = useState(0);
   const touchStartXRef = useRef(null);
 
@@ -55,7 +52,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
       ? couple.groomFullName
       : couple.brideFullName;
 
-  // Live countdown state
+  // Live countdown timer state
   const fallbackDate = new Date(
     date.year,
     date.monthNumber - 1,
@@ -79,6 +76,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
 
   const padNumber = (num) => String(num).padStart(2, '0');
 
+  // Navigate between spreads
   const goToSpread = useCallback(
     (targetSpread) => {
       if (targetSpread < 0 || targetSpread > 2) return;
@@ -98,17 +96,20 @@ export default function InvitationBook({ config, onFirstOpen }) {
     if (spread > 0) goToSpread(spread - 1);
   }, [spread, goToSpread]);
 
-  // Keyboard arrow navigation
+  // Keyboard navigation (Arrow keys)
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'ArrowRight') handleNext();
-      if (e.key === 'ArrowLeft') handlePrev();
+      if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+        handleNext();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        handlePrev();
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleNext, handlePrev]);
 
-  // Touch swipe navigation
+  // Mobile swipe gestures
   const handleTouchStart = (e) => {
     touchStartXRef.current = e.touches[0].clientX;
   };
@@ -116,12 +117,12 @@ export default function InvitationBook({ config, onFirstOpen }) {
   const handleTouchEnd = (e) => {
     if (touchStartXRef.current === null) return;
     const deltaX = e.changedTouches[0].clientX - touchStartXRef.current;
-    if (deltaX < -40) handleNext();
-    if (deltaX > 40) handlePrev();
+    if (deltaX < -45) handleNext();
+    if (deltaX > 45) handlePrev();
     touchStartXRef.current = null;
   };
 
-  // Share on WhatsApp
+  // WhatsApp share action
   const handleShareOnWhatsApp = (e) => {
     e.stopPropagation();
     const currentUrl = window.location.href;
@@ -138,8 +139,8 @@ export default function InvitationBook({ config, onFirstOpen }) {
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Top Status & Quick Spread Controls */}
-      <div className="twoside-top-bar">
+      {/* Top Navigation Bar: Spread Tabs & Audio status indicator */}
+      <header className="twoside-top-bar" aria-label="Book Navigation">
         <button
           type="button"
           className={`spread-pill ${spread === 0 ? 'spread-pill--active' : ''}`}
@@ -152,7 +153,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
           className={`spread-pill ${spread === 1 ? 'spread-pill--active' : ''}`}
           onClick={() => goToSpread(1)}
         >
-          Pages 1–2 • Invitation &amp; Location
+          Pages 1–2 • Invitation
         </button>
         <button
           type="button"
@@ -161,7 +162,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
         >
           Pages 3–4 • Dua &amp; Share
         </button>
-      </div>
+      </header>
 
       {/* 3D Two-Sided Book Stage */}
       <div className="twoside-scene">
@@ -169,32 +170,49 @@ export default function InvitationBook({ config, onFirstOpen }) {
           className={`twoside-book ${
             spread === 0 ? 'twoside-book--closed' : 'twoside-book--open'
           }`}
+          data-spread={spread}
         >
-          {/* Center Book Spine Crease (Visible when open) */}
+          {/* Center Book Spine Valley Crease (visible when book is open) */}
           <div className="twoside-center-spine" aria-hidden="true" />
 
+          {/* Gilded stacked page edges effect along the outer book borders */}
+          <div className="book-page-depth-layers" aria-hidden="true" />
+
           {/* ================================================================
-              LEAF 1:
-              - Front Face: Book Front Cover (visible when closed)
-              - Back Face: Left Page 1 (Invitation & Couple Names, visible on spread 1)
+              LEAF 1: HINGED FRONT COVER / LEFT PAGE 1
+              - Front Face (rotateY 0°): Closed Front Cover (starts on right side of spine)
+              - Back Face (rotateY 180°): Left Page 1 (Bismillah, Salam, Couple Names)
               ================================================================ */}
           <div
             className={`book-leaf leaf-1 ${
               spread >= 1 ? 'book-leaf--turned' : ''
             }`}
-            style={{ zIndex: spread >= 1 ? 20 : 30 }}
+            style={{ zIndex: spread >= 1 ? 20 : 35 }}
           >
-            {/* LEAF 1 FRONT: BOOK COVER */}
-            <div className="leaf-face leaf-front cover-face">
-              <div className="cover-spine-trim" aria-hidden="true" />
+            {/* FRONT FACE OF LEAF 1: HARDCOVER FRONT (Visible when closed) */}
+            <div
+              className="leaf-face leaf-front cover-face"
+              onClick={spread === 0 ? () => goToSpread(1) : undefined}
+              role={spread === 0 ? 'button' : undefined}
+              tabIndex={spread === 0 ? 0 : -1}
+              aria-label={spread === 0 ? 'Open Invitation Book' : undefined}
+            >
+              {/* Spine Binding Trim on the Left Edge */}
+              <div className="cover-spine-trim" aria-hidden="true">
+                <span className="spine-emboss-dots" />
+              </div>
+
+              {/* Corner Pressed Floral & Pearl Clusters */}
               <CornerOrnament position="top-left" />
               <CornerOrnament position="top-right" />
               <CornerOrnament position="bottom-left" />
               <CornerOrnament position="bottom-right" />
+
               <MosqueArchCrown className="page-arch" />
 
               <div className="page-body">
-                <CrescentMoonIcon size={38} />
+                <CrescentMoonIcon size={36} />
+
                 <p className="arabic-bismillah" lang="ar" dir="rtl">
                   {welcome.bismillahArabic}
                 </p>
@@ -221,27 +239,33 @@ export default function InvitationBook({ config, onFirstOpen }) {
                   {date.year}
                 </p>
 
-                <button
-                  type="button"
-                  className="btn-gold-primary open-book-btn"
-                  onClick={() => goToSpread(1)}
-                >
-                  <span>Open Invitation Book</span>
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
+                {spread === 0 && (
+                  <button
+                    type="button"
+                    className="btn-gold-primary open-book-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      goToSpread(1);
+                    }}
                   >
-                    <path d="M5 12h14M13 5l7 7-7 7" />
-                  </svg>
-                </button>
+                    <span>Open Invitation Book</span>
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      aria-hidden="true"
+                    >
+                      <path d="M5 12h14M13 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                )}
               </div>
             </div>
 
-            {/* LEAF 1 BACK: LEFT PAGE 1 (GREETING & COUPLE) */}
+            {/* BACK FACE OF LEAF 1: LEFT PAGE 1 (Visible on Spread 1) */}
             <div className="leaf-face leaf-back page-left">
               <CornerOrnament position="top-left" />
               <CornerOrnament position="bottom-left" />
@@ -265,9 +289,9 @@ export default function InvitationBook({ config, onFirstOpen }) {
                   <h2 className="hero-couple-name">{firstPerson}</h2>
 
                   <span className="hero-couple-conjunction">
-                    <IslamicStarIcon size={13} />
+                    <IslamicStarIcon size={12} />
                     <span>with</span>
-                    <IslamicStarIcon size={13} />
+                    <IslamicStarIcon size={12} />
                   </span>
 
                   <span className="couple-role-pill">Bride</span>
@@ -290,6 +314,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
                   type="button"
                   className="page-corner-btn"
                   onClick={() => goToSpread(0)}
+                  title="Close book back to front cover"
                 >
                   ← Cover
                 </button>
@@ -299,17 +324,17 @@ export default function InvitationBook({ config, onFirstOpen }) {
           </div>
 
           {/* ================================================================
-              LEAF 2:
-              - Front Face: Right Page 2 (Countdown & Location, visible on spread 1)
-              - Back Face: Left Page 3 (Islamic Blessing Dua, visible on spread 2)
+              LEAF 2: HINGED INNER LEAF
+              - Front Face (rotateY 0°): Right Page 2 (Countdown & Venue details)
+              - Back Face (rotateY 180°): Left Page 3 (Islamic Dua & Blessings)
               ================================================================ */}
           <div
             className={`book-leaf leaf-2 ${
               spread >= 2 ? 'book-leaf--turned' : ''
             }`}
-            style={{ zIndex: spread >= 2 ? 25 : 20 }}
+            style={{ zIndex: spread >= 2 ? 30 : 25 }}
           >
-            {/* LEAF 2 FRONT: RIGHT PAGE 2 (COUNTDOWN & VENUE) */}
+            {/* FRONT FACE OF LEAF 2: RIGHT PAGE 2 (Visible on Spread 1) */}
             <div className="leaf-face leaf-front page-right">
               <CornerOrnament position="top-right" />
               <CornerOrnament position="bottom-right" />
@@ -346,8 +371,8 @@ export default function InvitationBook({ config, onFirstOpen }) {
                 <div className="book-venue-block">
                   <div className="venue-icon-badge" aria-hidden="true">
                     <svg
-                      width="20"
-                      height="20"
+                      width="18"
+                      height="18"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -358,7 +383,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
                     </svg>
                   </div>
 
-                  <span className="section-eyebrow">Location</span>
+                  <span className="section-eyebrow">Ceremony Venue</span>
                   <h3 className="book-venue-title">{venue.name}</h3>
                   <p className="venue-clean-details">
                     {date.dayOfWeek}, {date.monthName} {date.dayOfMonth},{' '}
@@ -397,20 +422,21 @@ export default function InvitationBook({ config, onFirstOpen }) {
                   type="button"
                   className="page-corner-btn page-corner-btn--highlight"
                   onClick={() => goToSpread(2)}
+                  title="Turn to next page"
                 >
                   Turn Page →
                 </button>
               </div>
             </div>
 
-            {/* LEAF 2 BACK: LEFT PAGE 3 (ISLAMIC DUA & BLESSINGS) */}
+            {/* BACK FACE OF LEAF 2: LEFT PAGE 3 (Visible on Spread 2) */}
             <div className="leaf-face leaf-back page-left">
               <CornerOrnament position="top-left" />
               <CornerOrnament position="bottom-left" />
               <MosqueArchCrown className="page-arch" />
 
               <div className="page-body">
-                <CrescentMoonIcon size={38} />
+                <CrescentMoonIcon size={36} />
                 <span className="section-eyebrow">Islamic Dua &amp; Blessings</span>
 
                 <FloralGoldDivider />
@@ -430,6 +456,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
                   type="button"
                   className="page-corner-btn page-corner-btn--highlight"
                   onClick={() => goToSpread(1)}
+                  title="Return to previous page"
                 >
                   ← Prev Page
                 </button>
@@ -439,8 +466,9 @@ export default function InvitationBook({ config, onFirstOpen }) {
           </div>
 
           {/* ================================================================
-              STATIC RIGHT BASE PAGE:
-              - Right Page 4 (WhatsApp Share & Closing Seal, visible on spread 2)
+              STATIC RIGHT BASE PAGE: RIGHT PAGE 4
+              - Always rests under Leaf 2 on the right side
+              - Visible on Spread 2: Monogram, Closing Blessings, WhatsApp Share
               ================================================================ */}
           <div className="book-static-right page-right" style={{ zIndex: 10 }}>
             <CornerOrnament position="top-right" />
@@ -467,7 +495,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
               <FloralGoldDivider />
 
               <p className="dua-closing-note">
-                Share this digital engagement invitation with family &amp;
+                Share this blessed digital engagement invitation with family &amp;
                 friends on WhatsApp:
               </p>
 
@@ -484,6 +512,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
+                    aria-hidden="true"
                   >
                     <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
                   </svg>
@@ -494,6 +523,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
                   type="button"
                   onClick={() => goToSpread(0)}
                   className="btn-book-secondary"
+                  title="Close book back to front cover"
                 >
                   Close Book ↺
                 </button>
@@ -501,51 +531,62 @@ export default function InvitationBook({ config, onFirstOpen }) {
             </div>
 
             <div className="page-footer-row">
-              <span className="page-num-label">Page 4</span>
               <button
                 type="button"
                 className="page-corner-btn"
-                onClick={() => goToSpread(0)}
+                onClick={() => goToSpread(1)}
               >
-                Close Book
+                ← Prev Page
               </button>
+              <span className="page-num-label">Page 4</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom Book Navigation Bar */}
-      <div className="twoside-bottom-bar">
+      {/* Bottom Spread Dots & Quick Nav Indicator */}
+      <footer className="twoside-bottom-nav">
         <button
           type="button"
+          className="book-nav-btn"
           onClick={handlePrev}
           disabled={spread === 0}
-          className="book-nav-btn"
+          aria-label="Previous Page"
         >
-          ← {spread === 1 ? 'Close Cover' : 'Prev Page'}
+          ‹
         </button>
 
-        <div className="book-dots">
-          {[0, 1, 2].map((idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => goToSpread(idx)}
-              className={`book-dot ${spread === idx ? 'book-dot--active' : ''}`}
-              aria-label={`Go to spread ${idx + 1}`}
-            />
-          ))}
+        <div className="book-dots" role="tablist">
+          <button
+            type="button"
+            className={`book-dot ${spread === 0 ? 'book-dot--active' : ''}`}
+            onClick={() => goToSpread(0)}
+            title="Cover"
+          />
+          <button
+            type="button"
+            className={`book-dot ${spread === 1 ? 'book-dot--active' : ''}`}
+            onClick={() => goToSpread(1)}
+            title="Pages 1 & 2"
+          />
+          <button
+            type="button"
+            className={`book-dot ${spread === 2 ? 'book-dot--active' : ''}`}
+            onClick={() => goToSpread(2)}
+            title="Pages 3 & 4"
+          />
         </div>
 
         <button
           type="button"
+          className="book-nav-btn"
           onClick={handleNext}
           disabled={spread === 2}
-          className="book-nav-btn"
+          aria-label="Next Page"
         >
-          {spread === 0 ? 'Open Book' : 'Next Page'} →
+          ›
         </button>
-      </div>
+      </footer>
     </div>
   );
 }
