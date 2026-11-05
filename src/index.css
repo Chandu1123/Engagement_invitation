@@ -2159,3 +2159,183 @@ body {
     font-size: 0.7rem;
   }
 }
+
+
+/* ==========================================================================
+   BILINGUAL LANGUAGE SWITCHER (ENGLISH & TELUGU / తెలుగు)
+   ========================================================================== */
+
+.top-bar-right-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.lang-switcher-pill {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1.5px solid var(--resin-border);
+  border-radius: 999px;
+  padding: 2px;
+  box-shadow: 0 3px 10px rgba(110, 35, 54, 0.12);
+}
+
+.lang-switch-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--ink-800);
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.22rem 0.58rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  line-height: 1.15;
+}
+
+.lang-switch-btn--te {
+  font-family: 'Noto Sans Telugu', var(--font-sans);
+}
+
+.lang-switch-btn--active {
+  background: linear-gradient(135deg, #8c3349 0%, #5e1b2c 100%);
+  color: #fff9fb;
+  box-shadow: 0 2px 8px rgba(110, 35, 54, 0.28);
+}
+
+/* Front Cover Language Selector Pill */
+.cover-lang-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1.5px solid var(--resin-border);
+  border-radius: 999px;
+  padding: 2px 3px;
+  margin-bottom: 0.14rem;
+  box-shadow: 0 3px 10px rgba(110, 35, 54, 0.12);
+  z-index: 12;
+  position: relative;
+}
+
+.cover-lang-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--ink-800);
+  font-family: var(--font-sans);
+  font-size: clamp(0.56rem, 1vh, 0.68rem);
+  font-weight: 700;
+  padding: 0.18rem 0.62rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  line-height: 1.15;
+}
+
+.cover-lang-btn--te {
+  font-family: 'Noto Sans Telugu', var(--font-sans);
+}
+
+.cover-lang-btn--active {
+  background: linear-gradient(135deg, #8c3349 0%, #5e1b2c 100%);
+  color: #fff9fb;
+  box-shadow: 0 2px 6px rgba(110, 35, 54, 0.25);
+}
+
+/* ==========================================================================
+   TELUGU TYPOGRAPHY ENHANCEMENTS (.lang-te)
+   ========================================================================== */
+
+.lang-te {
+  font-family: 'Noto Sans Telugu', var(--font-sans);
+}
+
+.book-cover-names--te {
+  font-family: 'Noto Serif Telugu', var(--font-display);
+  font-size: clamp(1.18rem, 2.35vh, 1.55rem);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+}
+
+.book-cover-names--te .book-ampersand em {
+  font-family: 'Noto Serif Telugu', var(--font-serif);
+  font-style: normal;
+  font-size: clamp(0.68rem, 1.25vh, 0.85rem);
+  font-weight: 600;
+}
+
+.hero-couple-name--te {
+  font-family: 'Noto Serif Telugu', var(--font-display);
+  font-size: clamp(1.12rem, 2.2vh, 1.48rem);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+}
+
+.lang-te .welcome-badge-cover,
+.lang-te .section-eyebrow,
+.lang-te .couple-role-pill,
+.lang-te .celestial-dial-label,
+.lang-te .date-col-side,
+.lang-te .date-month-label {
+  font-family: 'Noto Sans Telugu', var(--font-sans);
+  letter-spacing: 0.03em;
+}
+
+.lang-te .invitation-lead,
+.lang-te .dua-translation-compact,
+.lang-te .countdown-poetic-pill,
+.lang-te .book-venue-title,
+.lang-te .venue-clean-address {
+  font-family: 'Noto Serif Telugu', var(--font-serif);
+  font-style: normal;
+  line-height: 1.38;
+}
+
+.lang-te .salam-transliteration {
+  font-family: 'Noto Sans Telugu', var(--font-sans);
+  letter-spacing: 0.02em;
+  font-size: clamp(0.54rem, 1vh, 0.66rem);
+}
+
+@media (max-width: 768px) {
+  .top-bar-right-controls {
+    gap: 0.25rem;
+  }
+
+  .lang-switch-btn {
+    padding: 0.2rem 0.44rem;
+    font-size: 0.62rem;
+  }
+
+  .mobile-nav-pills .spread-pill {
+    padding: 0.26rem 0.46rem;
+    font-size: 0.62rem;
+  }
+
+  .whatsapp-top-btn .whatsapp-top-label {
+    display: none;
+  }
+
+  .whatsapp-top-btn {
+    padding: 0.3rem 0.45rem;
+  }
+
+  .cover-portrait-wrapper {
+    width: min(195px, 48vw, 27vh);
+    height: min(228px, 56vw, 31.5vh);
+  }
+
+  .book-cover-names--te {
+    font-size: clamp(1.12rem, 2.4vh, 1.42rem);
+  }
+
+  .hero-couple-name--te {
+    font-size: clamp(1.08rem, 2.25vh, 1.38rem);
+  }
+}

@@ -31,7 +31,13 @@ function calculateTimeLeft(targetDateString, fallbackDateObj) {
 /**
  * Creative Celestial Pearl & Rose-Gold Medallion Dial for Countdown
  */
-function CelestialCountdownDial({ value, label, progressPercent, isSeconds }) {
+function CelestialCountdownDial({
+  value,
+  label,
+  gradId,
+  progressPercent,
+  isSeconds,
+}) {
   const radius = 26;
   const circumference = 2 * Math.PI * radius;
   const clamped = Math.max(4, Math.min(100, progressPercent));
@@ -55,7 +61,7 @@ function CelestialCountdownDial({ value, label, progressPercent, isSeconds }) {
         >
           <defs>
             <linearGradient
-              id={`dialGrad-${label}`}
+              id={`dialGrad-${gradId}`}
               x1="0%"
               y1="0%"
               x2="100%"
@@ -95,7 +101,7 @@ function CelestialCountdownDial({ value, label, progressPercent, isSeconds }) {
             cy="32"
             r={radius}
             fill="none"
-            stroke={`url(#dialGrad-${label})`}
+            stroke={`url(#dialGrad-${gradId})`}
             strokeWidth="3"
             strokeLinecap="round"
             strokeDasharray={circumference}
@@ -121,13 +127,22 @@ function CelestialCountdownDial({ value, label, progressPercent, isSeconds }) {
  * InvitationBook
  *
  * Interactive Luxury Handcrafted Floral-Resin & Pearl Engagement Invitation Book:
+ * - Bilingual Support: Instant toggle between English ('en') and Telugu ('te' - తెలుగు).
  * - Guaranteed to ALWAYS start on the Front Cover (Face of the Book) on both Phone and Desktop.
  * - Mobile View: 3D Page-Turning Hardcover Book (Cover -> Blessings -> Venue & Maps).
  * - Desktop View: Centered closed cover unfolding into a 2-sided open book spread.
  * - Creative Celestial Pearl & Rose-Gold Medallion Dials for the live countdown.
  */
 export default function InvitationBook({ config, onFirstOpen }) {
-  const { couple, welcome, greeting, date, venue, dua, sharing } = config;
+  const { couple, welcome, greeting, date, venue, dua, sharing, translations } =
+    config;
+
+  // Language state: 'en' (English) or 'te' (Telugu)
+  const [language, setLanguage] = useState('en');
+  const t =
+    (translations && translations[language]) ||
+    (translations && translations.en) ||
+    {};
 
   // Responsive state (Phone / Tablet portrait <= 768px)
   const [isMobile, setIsMobile] = useState(
@@ -160,7 +175,10 @@ export default function InvitationBook({ config, onFirstOpen }) {
     const y = clientY - rect.top;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    const rotateX = Math.max(-14, Math.min(14, ((y - centerY) / centerY) * -12));
+    const rotateX = Math.max(
+      -14,
+      Math.min(14, ((y - centerY) / centerY) * -12)
+    );
     const rotateY = Math.max(-14, Math.min(14, ((x - centerX) / centerX) * 12));
     const glareX = Math.max(0, Math.min(100, (x / rect.width) * 100));
     const glareY = Math.max(0, Math.min(100, (y / rect.height) * 100));
@@ -182,14 +200,13 @@ export default function InvitationBook({ config, onFirstOpen }) {
     setTilt({ x: 0, y: 0, glareX: 50, glareY: 50 });
   };
 
+  const groomDisplay = t.groomName || couple.groomFullName;
+  const brideDisplay = t.brideName || couple.brideFullName;
+
   const firstPerson =
-    couple.order === 'bride-first'
-      ? couple.brideFullName
-      : couple.groomFullName;
+    couple.order === 'bride-first' ? brideDisplay : groomDisplay;
   const secondPerson =
-    couple.order === 'bride-first'
-      ? couple.groomFullName
-      : couple.brideFullName;
+    couple.order === 'bride-first' ? groomDisplay : brideDisplay;
 
   // Live countdown timer state
   const fallbackDate = new Date(
@@ -235,12 +252,13 @@ export default function InvitationBook({ config, onFirstOpen }) {
     setMobilePage(0);
   }, []);
 
-  // Mobile page navigation
+  // Mobile page navigation (with 350ms debounce to prevent touch + click double-jumps)
   const handleGoToMobilePage = useCallback(
     (pageIdx) => {
       const now = Date.now();
       if (now - lastNavTimeRef.current < 350) return;
       lastNavTimeRef.current = now;
+
       if (pageIdx > 0) {
         triggerOpenAudio();
         setIsOpen(true);
@@ -305,11 +323,18 @@ export default function InvitationBook({ config, onFirstOpen }) {
     touchStartYRef.current = null;
   };
 
-  // WhatsApp share action
+  // Language switch handler (stops propagation so tapping on the cover doesn't flip page)
+  const handleSelectLanguage = (langCode, e) => {
+    if (e) e.stopPropagation();
+    setLanguage(langCode);
+  };
+
+  // WhatsApp share action (shares in currently selected language!)
   const handleShareOnWhatsApp = (e) => {
     e.stopPropagation();
     const currentUrl = window.location.href;
-    const text = `${sharing.whatsappShareText} ${currentUrl}`;
+    const shareMsg = t.whatsappShareText || sharing.whatsappShareText;
+    const text = `${shareMsg} ${currentUrl}`;
     const encoded = encodeURIComponent(text);
     window.open(`https://api.whatsapp.com/send?text=${encoded}`, '_blank');
   };
@@ -318,7 +343,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
   // SHARED PAGE CONTENT RENDERERS
   // --------------------------------------------------------------------------
 
-  // 1. FRONT COVER (Face of the Book with 3D Animated Couple)
+  // 1. FRONT COVER (Face of the Book with 3D Animated Couple & Language Selector)
   const renderCoverContent = () => (
     <>
       <div className="cover-spine-trim" aria-hidden="true">
@@ -353,13 +378,42 @@ export default function InvitationBook({ config, onFirstOpen }) {
       </div>
 
       <div className="page-body cover-page-body">
-        {/* Top Bismillah Calligraphy */}
+        {/* Top Bismillah Calligraphy & Language Selector */}
         <div className="cover-header-group">
           <p className="arabic-bismillah-cover" lang="ar" dir="rtl">
             {welcome.bismillahArabic}
           </p>
+
+          {/* Interactive Language Selector Pill right on the Cover */}
+          <div
+            className="cover-lang-selector"
+            role="group"
+            aria-label="Choose Language / భాషను ఎంచుకోండి"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className={`cover-lang-btn ${
+                language === 'en' ? 'cover-lang-btn--active' : ''
+              }`}
+              onClick={(e) => handleSelectLanguage('en', e)}
+            >
+              English
+            </button>
+            <button
+              type="button"
+              className={`cover-lang-btn cover-lang-btn--te ${
+                language === 'te' ? 'cover-lang-btn--active' : ''
+              }`}
+              onClick={(e) => handleSelectLanguage('te', e)}
+              lang="te"
+            >
+              తెలుగు
+            </button>
+          </div>
+
           <span className="welcome-badge-cover">
-            ✦ {welcome.badgeText} ✦
+            ✦ {t.badgeText || welcome.badgeText} ✦
           </span>
         </div>
 
@@ -377,7 +431,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
                 }
               : undefined
           }
-          title="Sarithala Chandu & Vuluvalapalli Kulsum"
+          title={`${firstPerson} & ${secondPerson}`}
         >
           <div className="portrait-glow-halo" aria-hidden="true" />
           <div className="portrait-crown-pearl" aria-hidden="true" />
@@ -402,11 +456,15 @@ export default function InvitationBook({ config, onFirstOpen }) {
 
         {/* Couple Names & Date */}
         <div className="cover-info-group">
-          <h1 className="book-cover-names">
+          <h1
+            className={`book-cover-names ${
+              language === 'te' ? 'book-cover-names--te' : ''
+            }`}
+          >
             <span className="cover-person-line">{firstPerson}</span>
             <span className="book-ampersand">
               <span className="amp-line" />
-              <em>with</em>
+              <em>{t.withConjunction || 'with'}</em>
               <span className="amp-line" />
             </span>
             <span className="cover-person-line">{secondPerson}</span>
@@ -415,13 +473,14 @@ export default function InvitationBook({ config, onFirstOpen }) {
           <div className="cover-date-ribbon">
             <span className="ribbon-star">✦</span>
             <span className="welcome-date-pill">
-              {date.dayOfWeek}, {date.monthName} {date.dayOfMonth}, {date.year}
+              {t.fullDateDisplay ||
+                `${date.dayOfWeek}, ${date.monthName} ${date.dayOfMonth}, ${date.year}`}
             </span>
             <span className="ribbon-star">✦</span>
           </div>
 
           <div className="cover-open-cta-pill">
-            <span>Tap to Open Book</span>
+            <span>{t.openBookCta || 'Tap to Open Book'}</span>
             <svg
               width="14"
               height="14"
@@ -458,10 +517,12 @@ export default function InvitationBook({ config, onFirstOpen }) {
           {greeting.salamArabic}
         </p>
         <p className="salam-transliteration">
-          {greeting.salamTransliteration}
+          {t.salamTransliteration || greeting.salamTransliteration}
         </p>
 
-        <p className="invitation-lead">{greeting.invitationLead}</p>
+        <p className="invitation-lead">
+          {t.invitationLead || greeting.invitationLead}
+        </p>
 
         {/* Royal Couple Showcase Plaque with Cameo Medallion */}
         <div className="hero-couple-showcase">
@@ -473,17 +534,29 @@ export default function InvitationBook({ config, onFirstOpen }) {
             />
           </div>
 
-          <span className="couple-role-pill">Groom</span>
-          <h2 className="hero-couple-name">{firstPerson}</h2>
+          <span className="couple-role-pill">{t.groomRole || 'Groom'}</span>
+          <h2
+            className={`hero-couple-name ${
+              language === 'te' ? 'hero-couple-name--te' : ''
+            }`}
+          >
+            {firstPerson}
+          </h2>
 
           <span className="hero-couple-conjunction">
             <IslamicStarIcon size={11} />
-            <span>with</span>
+            <span>{t.withConjunction || 'with'}</span>
             <IslamicStarIcon size={11} />
           </span>
 
-          <span className="couple-role-pill">Bride</span>
-          <h2 className="hero-couple-name">{secondPerson}</h2>
+          <span className="couple-role-pill">{t.brideRole || 'Bride'}</span>
+          <h2
+            className={`hero-couple-name ${
+              language === 'te' ? 'hero-couple-name--te' : ''
+            }`}
+          >
+            {secondPerson}
+          </h2>
         </div>
 
         {/* Islamic Blessing Dua */}
@@ -493,7 +566,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
             {dua.blessingDuaArabic}
           </p>
           <p className="dua-translation-compact">
-            {dua.blessingDuaTranslation}
+            {t.blessingDuaTranslation || dua.blessingDuaTranslation}
           </p>
         </div>
       </div>
@@ -507,9 +580,9 @@ export default function InvitationBook({ config, onFirstOpen }) {
             if (isMobile) handleGoToMobilePage(0);
             else handleCloseDesktop();
           }}
-          title="Back to Book Cover"
+          title={t.pageBackToCover || 'Back to Book Cover'}
         >
-          ← Cover
+          {t.pageBackToCover || '← Cover'}
         </button>
 
         {isMobile ? (
@@ -520,12 +593,14 @@ export default function InvitationBook({ config, onFirstOpen }) {
               e.stopPropagation();
               handleGoToMobilePage(2);
             }}
-            title="Turn to Venue & Date page"
+            title={t.pageToVenue || 'Turn to Venue & Date page'}
           >
-            Venue &amp; Date →
+            {t.pageToVenue || 'Venue & Date →'}
           </button>
         ) : (
-          <span className="page-num-label">Blessings &amp; Union</span>
+          <span className="page-num-label">
+            {t.footerBlessingsLabel || 'Blessings & Union'}
+          </span>
         )}
       </div>
     </>
@@ -533,7 +608,10 @@ export default function InvitationBook({ config, onFirstOpen }) {
 
   // 3. INSIDE PAGE 2 (Save The Date, Creative Celestial Countdown & Venue)
   const renderRightPageContent = () => {
-    const daysProgress = Math.min(100, Math.max(8, ((365 - (timeLeft.days % 365)) / 365) * 100));
+    const daysProgress = Math.min(
+      100,
+      Math.max(8, ((365 - (timeLeft.days % 365)) / 365) * 100)
+    );
     const hoursProgress = (timeLeft.hours / 24) * 100;
     const minsProgress = (timeLeft.minutes / 60) * 100;
     const secsProgress = (timeLeft.seconds / 60) * 100;
@@ -547,13 +625,19 @@ export default function InvitationBook({ config, onFirstOpen }) {
         <MosqueArchCrown className="page-arch" />
 
         <div className="page-body">
-          <span className="section-eyebrow">✦ Save The Date ✦</span>
+          <span className="section-eyebrow">
+            {t.saveTheDateEyebrow || '✦ Save The Date ✦'}
+          </span>
 
           {/* Royal 3-Column Date Showcase */}
           <div className="royal-date-showcase">
-            <span className="date-col-side">{date.dayOfWeek}</span>
+            <span className="date-col-side">
+              {t.dayOfWeek || date.dayOfWeek}
+            </span>
             <div className="date-col-center">
-              <span className="date-month-label">{date.monthName}</span>
+              <span className="date-month-label">
+                {t.monthName || date.monthName}
+              </span>
               <span className="date-day-giant">{date.dayOfMonth}</span>
             </div>
             <span className="date-col-side">{date.year}</span>
@@ -562,20 +646,26 @@ export default function InvitationBook({ config, onFirstOpen }) {
           {/* Creative Celestial Pearl & Rose-Gold Medallion Countdown */}
           {timeLeft.isComplete ? (
             <div className="countdown-complete-banner">
-              <h3>✨ Alhamdulillah! Today is Our Engagement Day ✨</h3>
+              <h3>
+                {t.countdownCompleteText ||
+                  '✨ Alhamdulillah! Today is Our Engagement Day ✨'}
+              </h3>
             </div>
           ) : (
             <div className="creative-countdown-stage" role="timer">
               <div className="countdown-poetic-pill">
                 <span className="hourglass-sparkle">⏳</span>
-                <span>Counting Every Blessed Moment</span>
+                <span>
+                  {t.countdownPoeticText || 'Counting Every Blessed Moment'}
+                </span>
                 <span className="hourglass-sparkle">✨</span>
               </div>
 
               <div className="celestial-dials-row">
                 <CelestialCountdownDial
                   value={padNumber(timeLeft.days)}
-                  label="Days"
+                  label={t.dialDays || 'Days'}
+                  gradId="days"
                   progressPercent={daysProgress}
                   isSeconds={false}
                 />
@@ -584,7 +674,8 @@ export default function InvitationBook({ config, onFirstOpen }) {
                 </span>
                 <CelestialCountdownDial
                   value={padNumber(timeLeft.hours)}
-                  label="Hours"
+                  label={t.dialHours || 'Hours'}
+                  gradId="hours"
                   progressPercent={hoursProgress}
                   isSeconds={false}
                 />
@@ -593,7 +684,8 @@ export default function InvitationBook({ config, onFirstOpen }) {
                 </span>
                 <CelestialCountdownDial
                   value={padNumber(timeLeft.minutes)}
-                  label="Mins"
+                  label={t.dialMins || 'Mins'}
+                  gradId="mins"
                   progressPercent={minsProgress}
                   isSeconds={false}
                 />
@@ -602,7 +694,8 @@ export default function InvitationBook({ config, onFirstOpen }) {
                 </span>
                 <CelestialCountdownDial
                   value={padNumber(timeLeft.seconds)}
-                  label="Secs"
+                  label={t.dialSecs || 'Secs'}
+                  gradId="secs"
                   progressPercent={secsProgress}
                   isSeconds={true}
                 />
@@ -628,11 +721,15 @@ export default function InvitationBook({ config, onFirstOpen }) {
               </svg>
             </div>
 
-            <span className="section-eyebrow">Ceremony Venue</span>
-            <h3 className="book-venue-title">{venue.name}</h3>
+            <span className="section-eyebrow">
+              {t.venueEyebrow || 'Ceremony Venue'}
+            </span>
+            <h3 className="book-venue-title">{t.venueName || venue.name}</h3>
             <p className="venue-clean-address">
-              {venue.addressLine1}
-              {venue.cityStateZip ? `, ${venue.cityStateZip}` : ''}
+              {t.venueAddress ||
+                `${venue.addressLine1}${
+                  venue.cityStateZip ? `, ${venue.cityStateZip}` : ''
+                }`}
             </p>
 
             <div className="right-page-actions">
@@ -654,14 +751,14 @@ export default function InvitationBook({ config, onFirstOpen }) {
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                   <circle cx="12" cy="10" r="3" />
                 </svg>
-                <span>Open Google Maps Location</span>
+                <span>{t.openMapsBtn || 'Open Google Maps Location'}</span>
               </a>
 
               <button
                 type="button"
                 onClick={handleShareOnWhatsApp}
                 className="btn-whatsapp-compact"
-                title="Share invitation on WhatsApp"
+                title={t.shareWhatsAppBtn || 'Share invitation on WhatsApp'}
               >
                 <svg
                   width="14"
@@ -673,7 +770,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
                 >
                   <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
                 </svg>
-                <span>Share on WhatsApp</span>
+                <span>{t.shareWhatsAppBtn || 'Share on WhatsApp'}</span>
               </button>
             </div>
           </div>
@@ -689,9 +786,9 @@ export default function InvitationBook({ config, onFirstOpen }) {
                   e.stopPropagation();
                   handleGoToMobilePage(1);
                 }}
-                title="Back to Blessings page"
+                title={t.pageBackToBlessings || 'Back to Blessings page'}
               >
-                ← Blessings
+                {t.pageBackToBlessings || '← Blessings'}
               </button>
               <button
                 type="button"
@@ -700,21 +797,23 @@ export default function InvitationBook({ config, onFirstOpen }) {
                   e.stopPropagation();
                   handleGoToMobilePage(0);
                 }}
-                title="Return to Front Cover"
+                title={t.pageReturnCover || 'Return to Front Cover'}
               >
-                Cover ↺
+                {t.pageReturnCover || 'Cover ↺'}
               </button>
             </>
           ) : (
             <>
-              <span className="page-num-label">Venue &amp; Date</span>
+              <span className="page-num-label">
+                {t.footerVenueLabel || 'Venue & Date'}
+              </span>
               <button
                 type="button"
                 className="page-corner-btn page-corner-btn--highlight"
                 onClick={handlePrev}
-                title="Move backward to cover"
+                title={t.pageBackToCoverFull || 'Move backward to cover'}
               >
-                ← Back to Cover
+                {t.pageBackToCoverFull || '← Back to Cover'}
               </button>
             </>
           )}
@@ -731,11 +830,14 @@ export default function InvitationBook({ config, onFirstOpen }) {
 
   return (
     <div
-      className="twoside-book-viewport"
+      className={`twoside-book-viewport ${
+        language === 'te' ? 'lang-te' : 'lang-en'
+      }`}
+      lang={language}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Top Header Bar */}
+      {/* Top Header Bar: Page Pills + Language Switcher + WhatsApp Share */}
       <header className="twoside-top-bar" aria-label="Invitation Navigation">
         {isMobile ? (
           <div className="top-nav-pills mobile-nav-pills">
@@ -746,7 +848,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
               }`}
               onClick={() => handleGoToMobilePage(0)}
             >
-              📖 Cover
+              📖 {t.navCover || 'Cover'}
             </button>
             <button
               type="button"
@@ -755,7 +857,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
               }`}
               onClick={() => handleGoToMobilePage(1)}
             >
-              ✨ Blessings
+              ✨ {t.navBlessings || 'Blessings'}
             </button>
             <button
               type="button"
@@ -764,7 +866,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
               }`}
               onClick={() => handleGoToMobilePage(2)}
             >
-              📍 Venue
+              📍 {t.navVenue || 'Venue'}
             </button>
           </div>
         ) : (
@@ -774,39 +876,72 @@ export default function InvitationBook({ config, onFirstOpen }) {
               className={`spread-pill ${!isOpen ? 'spread-pill--active' : ''}`}
               onClick={handleCloseDesktop}
             >
-              Cover
+              {t.navCover || 'Cover'}
             </button>
             <button
               type="button"
               className={`spread-pill ${isOpen ? 'spread-pill--active' : ''}`}
               onClick={handleOpenDesktop}
             >
-              Inside Spread 📖
+              {t.navInsideSpread || 'Inside Spread 📖'}
             </button>
           </div>
         )}
 
-        <button
-          type="button"
-          className="whatsapp-top-btn"
-          onClick={handleShareOnWhatsApp}
-          title="Share invitation on WhatsApp"
-        >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
+        <div className="top-bar-right-controls">
+          {/* Global Language Toggle Pill (English | తెలుగు) */}
+          <div
+            className="lang-switcher-pill"
+            role="group"
+            aria-label="Select Language"
           >
-            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-          </svg>
-          <span>Share</span>
-        </button>
+            <button
+              type="button"
+              className={`lang-switch-btn ${
+                language === 'en' ? 'lang-switch-btn--active' : ''
+              }`}
+              onClick={(e) => handleSelectLanguage('en', e)}
+              title="Read in English"
+            >
+              EN
+            </button>
+            <button
+              type="button"
+              className={`lang-switch-btn lang-switch-btn--te ${
+                language === 'te' ? 'lang-switch-btn--active' : ''
+              }`}
+              onClick={(e) => handleSelectLanguage('te', e)}
+              title="తెలుగులో చదవండి (Read in Telugu)"
+              lang="te"
+            >
+              తెలుగు
+            </button>
+          </div>
+
+          <button
+            type="button"
+            className="whatsapp-top-btn"
+            onClick={handleShareOnWhatsApp}
+            title={t.shareWhatsAppBtn || 'Share invitation on WhatsApp'}
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+            </svg>
+            <span className="whatsapp-top-label">
+              {t.navShareShort || 'Share'}
+            </span>
+          </button>
+        </div>
       </header>
 
       {/* Main Book Stage */}
@@ -836,7 +971,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
             >
               <polyline points="15 18 9 12 15 6" />
             </svg>
-            <span className="side-arrow-label">Back</span>
+            <span className="side-arrow-label">{t.navBack || 'Back'}</span>
           </button>
         )}
 
@@ -892,11 +1027,13 @@ export default function InvitationBook({ config, onFirstOpen }) {
               className={`mobile-3d-sheet mobile-sheet--cover ${
                 mobilePage > 0 ? 'mobile-sheet--turned' : 'mobile-sheet--active'
               }`}
-              onClick={mobilePage === 0 ? () => handleGoToMobilePage(1) : undefined}
+              onClick={
+                mobilePage === 0 ? () => handleGoToMobilePage(1) : undefined
+              }
               role={mobilePage === 0 ? 'button' : undefined}
               tabIndex={mobilePage === 0 ? 0 : -1}
               aria-hidden={mobilePage !== 0}
-              aria-label="Open Invitation Book"
+              aria-label={t.openBookCta || 'Open Invitation Book'}
             >
               <div className="leaf-face cover-face mobile-sheet-face">
                 {renderCoverContent()}
@@ -939,7 +1076,9 @@ export default function InvitationBook({ config, onFirstOpen }) {
                 onClick={!isOpen ? handleOpenDesktop : undefined}
                 role={!isOpen ? 'button' : undefined}
                 tabIndex={!isOpen ? 0 : -1}
-                aria-label={!isOpen ? 'Open Invitation Book' : undefined}
+                aria-label={
+                  !isOpen ? t.openBookCta || 'Open Invitation Book' : undefined
+                }
               >
                 {renderCoverContent()}
               </div>
@@ -964,7 +1103,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
             aria-label="Next (Move Forward)"
             title="Move forward (→ Right Arrow)"
           >
-            <span className="side-arrow-label">Next</span>
+            <span className="side-arrow-label">{t.navNext || 'Next'}</span>
             <svg
               width="22"
               height="22"
@@ -991,8 +1130,8 @@ export default function InvitationBook({ config, onFirstOpen }) {
           }`}
           onClick={handlePrev}
           disabled={isBackDisabled}
-          title="Previous Page"
-          aria-label="Previous Page"
+          title={t.navPrev || 'Previous Page'}
+          aria-label={t.navPrev || 'Previous Page'}
         >
           <svg
             width="14"
@@ -1007,7 +1146,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
           >
             <polyline points="15 18 9 12 15 6" />
           </svg>
-          <span>Prev</span>
+          <span>{t.navPrev || 'Prev'}</span>
         </button>
 
         {/* Page Indicator Dots */}
@@ -1015,9 +1154,9 @@ export default function InvitationBook({ config, onFirstOpen }) {
           {isMobile ? (
             <>
               {[
-                { idx: 0, label: 'Cover' },
-                { idx: 1, label: 'Blessings' },
-                { idx: 2, label: 'Venue' },
+                { idx: 0, label: t.navCover || 'Cover' },
+                { idx: 1, label: t.navBlessings || 'Blessings' },
+                { idx: 2, label: t.navVenue || 'Venue' },
               ].map((item, i) => (
                 <React.Fragment key={item.idx}>
                   {i > 0 && <span className="spread-separator">•</span>}
@@ -1048,7 +1187,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
                 aria-selected={!isOpen}
               >
                 <span className="dot-indicator" />
-                <span className="dot-label">Cover</span>
+                <span className="dot-label">{t.navCover || 'Cover'}</span>
               </button>
               <span className="spread-separator">•</span>
               <button
@@ -1061,7 +1200,9 @@ export default function InvitationBook({ config, onFirstOpen }) {
                 aria-selected={isOpen}
               >
                 <span className="dot-indicator" />
-                <span className="dot-label">Inside</span>
+                <span className="dot-label">
+                  {t.navInsideShort || 'Inside'}
+                </span>
               </button>
             </>
           )}
@@ -1074,10 +1215,10 @@ export default function InvitationBook({ config, onFirstOpen }) {
           }`}
           onClick={handleNext}
           disabled={isNextDisabled}
-          title="Next Page"
-          aria-label="Next Page"
+          title={t.navNext || 'Next Page'}
+          aria-label={t.navNext || 'Next Page'}
         >
-          <span>Next</span>
+          <span>{t.navNext || 'Next'}</span>
           <svg
             width="14"
             height="14"
