@@ -138,7 +138,7 @@ body {
   gap: 0.8vh;
 }
 
-/* Top Spread Selector Pills */
+/* Top Header Bar */
 .twoside-top-bar {
   display: flex;
   align-items: center;
@@ -168,6 +168,31 @@ body {
   box-shadow: 0 4px 12px rgba(110, 35, 54, 0.25);
 }
 
+/* WhatsApp Header Button */
+.whatsapp-top-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid #25d366;
+  background: rgba(37, 211, 102, 0.15);
+  color: #128c7e;
+  font-family: var(--font-sans);
+  font-size: clamp(0.66rem, 1.3vw, 0.76rem);
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+}
+
+.whatsapp-top-btn:hover {
+  background: #25d366;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35);
+  transform: translateY(-1px);
+}
+
 /* ==========================================================================
    3D TWO-SIDED BOOK ENGINE
    ========================================================================== */
@@ -191,9 +216,8 @@ body {
 
 /* 
    CLOSED STATE:
-   On wider screens, the book starts with the front cover on the RIGHT SIDE of the spine!
-   The spine sits at 50% (the center crease).
-   On small screens (phones), shift slightly (-25%) so the single cover fills the phone comfortably,
+   On wider screens, the book starts with the front cover on the RIGHT SIDE of the spine.
+   On mobile phones, shift slightly (-25%) so the single cover fills the phone comfortably,
    then upon opening, glides to 0% to present the 2-sided spread!
 */
 .twoside-book--closed {
@@ -281,7 +305,7 @@ body {
   transform: rotateY(-180deg);
 }
 
-/* Static Right Base Page (Page 4 underneath Leaf 2) */
+/* Static Right Base Page */
 .book-static-right {
   position: absolute;
   top: 0;
@@ -400,7 +424,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(0.12rem, 0.6vh, 0.4rem);
+  gap: clamp(0.12rem, 0.6vh, 0.38rem);
   overflow: hidden;
   width: 100%;
 }
@@ -412,7 +436,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 0.3rem;
+  padding-top: 0.25rem;
   border-top: 1px dashed rgba(194, 120, 110, 0.35);
   flex-shrink: 0;
 }
@@ -541,8 +565,7 @@ body {
   flex-shrink: 0;
 }
 
-.book-cover-names,
-.book-closing-names {
+.book-cover-names {
   font-family: var(--font-script);
   font-size: clamp(1.45rem, 3.4vh, 2.35rem);
   font-weight: 400;
@@ -570,13 +593,13 @@ body {
 /* Page 1: Greeting & Couple */
 .arabic-salam {
   font-family: var(--font-arabic);
-  font-size: clamp(0.88rem, 1.8vh, 1.25rem);
+  font-size: clamp(0.85rem, 1.7vh, 1.2rem);
   color: var(--ink-900);
 }
 
 .salam-transliteration {
   font-family: var(--font-sans);
-  font-size: clamp(0.52rem, 0.95vh, 0.65rem);
+  font-size: clamp(0.5rem, 0.9vh, 0.62rem);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-muted);
@@ -587,10 +610,10 @@ body {
   font-family: var(--font-serif);
   font-style: italic;
   font-weight: 600;
-  font-size: clamp(0.7rem, 1.4vh, 0.92rem);
+  font-size: clamp(0.68rem, 1.35vh, 0.88rem);
   color: var(--ink-800);
-  max-width: 92%;
-  line-height: 1.3;
+  max-width: 94%;
+  line-height: 1.25;
 }
 
 .hero-couple-showcase {
@@ -598,7 +621,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: clamp(0.25rem, 0.8vh, 0.6rem) 0.4rem;
+  padding: clamp(0.2rem, 0.7vh, 0.5rem) 0.35rem;
   border-top: 1px solid var(--resin-border);
   border-bottom: 1px solid var(--resin-border);
   background: radial-gradient(
@@ -610,7 +633,7 @@ body {
 
 .couple-role-pill {
   font-family: var(--font-sans);
-  font-size: clamp(0.52rem, 0.9vh, 0.62rem);
+  font-size: clamp(0.5rem, 0.85vh, 0.6rem);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.16em;
@@ -619,7 +642,7 @@ body {
 
 .hero-couple-name {
   font-family: var(--font-script);
-  font-size: clamp(1.4rem, 3.2vh, 2.25rem);
+  font-size: clamp(1.35rem, 3vh, 2.15rem);
   font-weight: 400;
   line-height: 1.1;
   color: var(--ink-900);
@@ -632,27 +655,34 @@ body {
   color: var(--rose-gold-deep);
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: clamp(0.75rem, 1.4vh, 0.95rem);
+  font-size: clamp(0.72rem, 1.3vh, 0.9rem);
 }
 
-.hero-date-banner {
-  width: 94%;
+/* Page Dua on Left Page */
+.page-dua-container {
+  width: 95%;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-around;
-  padding: 0.25rem 0.5rem;
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid var(--resin-border);
-  border-radius: 999px;
-  font-family: var(--font-serif);
-  font-size: clamp(0.68rem, 1.3vh, 0.85rem);
-  color: var(--ink-800);
-  font-weight: 600;
+  gap: 0.12rem;
 }
 
-.date-inline-highlight {
-  font-weight: 700;
+.arabic-blessing-compact {
+  font-family: var(--font-arabic);
+  font-size: clamp(0.76rem, 1.5vh, 1.02rem);
+  line-height: 1.35;
   color: var(--ink-900);
+  max-width: 96%;
+}
+
+.dua-translation-compact {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 600;
+  font-size: clamp(0.6rem, 1.1vh, 0.75rem);
+  color: var(--ink-800);
+  max-width: 96%;
+  line-height: 1.25;
 }
 
 /* Page 2: Countdown & Location */
@@ -721,16 +751,16 @@ body {
 }
 
 .book-venue-block {
-  width: 92%;
+  width: 94%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.2rem;
+  gap: 0.18rem;
 }
 
 .venue-icon-badge {
-  width: clamp(28px, 4vh, 36px);
-  height: clamp(28px, 4vh, 36px);
+  width: clamp(28px, 3.8vh, 34px);
+  height: clamp(28px, 3.8vh, 34px);
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid var(--rose-gold-primary);
@@ -762,41 +792,36 @@ body {
   line-height: 1.25;
 }
 
-/* Page 3: Islamic Dua & Blessings */
-.arabic-blessing {
-  font-family: var(--font-arabic);
-  font-size: clamp(0.95rem, 2.1vh, 1.45rem);
-  line-height: 1.4;
-  color: var(--ink-900);
-  max-width: 92%;
-}
-
-.dua-translation {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-weight: 600;
-  font-size: clamp(0.72rem, 1.4vh, 0.9rem);
-  color: var(--ink-800);
-  max-width: 90%;
-  line-height: 1.3;
-}
-
-.dua-closing-note {
-  font-family: var(--font-serif);
-  font-size: clamp(0.72rem, 1.4vh, 0.9rem);
-  color: var(--ink-700);
-  max-width: 88%;
-  line-height: 1.35;
-}
-
-/* Page 4: WhatsApp Share & Actions */
-.book-share-actions {
+/* Right Page Actions: Google Maps & WhatsApp */
+.right-page-actions {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.45rem;
-  width: 88%;
-  max-width: 250px;
+  gap: 0.35rem;
+  width: 100%;
+  margin-top: 0.15rem;
+}
+
+.btn-whatsapp-compact {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  background: rgba(37, 211, 102, 0.12);
+  border: 1px solid rgba(37, 211, 102, 0.45);
+  color: #128c7e;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-size: clamp(0.62rem, 1.1vh, 0.74rem);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-whatsapp-compact:hover {
+  background: rgba(37, 211, 102, 0.22);
+  transform: translateY(-1px);
 }
 
 /* Primary Rose-Gold Buttons */
@@ -831,25 +856,7 @@ body {
   width: auto;
   padding: 0.3rem 0.8rem;
   font-size: clamp(0.64rem, 1.2vh, 0.78rem);
-  margin-top: 0.15rem;
-}
-
-.btn-book-secondary {
-  background: rgba(255, 255, 255, 0.75);
-  border: 1px solid var(--resin-border);
-  color: var(--ink-800);
-  font-family: var(--font-sans);
-  font-size: clamp(0.64rem, 1.2vh, 0.76rem);
-  font-weight: 600;
-  padding: 0.3rem 0.8rem;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  width: 100%;
-}
-
-.btn-book-secondary:hover {
-  background: rgba(255, 255, 255, 0.95);
+  margin-top: 0.1rem;
 }
 
 .open-book-btn {
@@ -867,7 +874,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.2rem;
+  gap: 1rem;
   z-index: 40;
 }
 
@@ -878,7 +885,7 @@ body {
   border: 1px solid var(--resin-border);
   background: rgba(255, 245, 248, 0.9);
   color: var(--ink-900);
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -888,14 +895,9 @@ body {
   box-shadow: 0 3px 8px rgba(110, 35, 54, 0.12);
 }
 
-.book-nav-btn:hover:not(:disabled) {
+.book-nav-btn:hover {
   background: #fff;
   transform: scale(1.08);
-}
-
-.book-nav-btn:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
 }
 
 .book-dots {
@@ -918,6 +920,30 @@ body {
   width: 24px;
   border-radius: 999px;
   background: var(--ink-800);
+}
+
+/* WhatsApp Bottom Nav Pill */
+.whatsapp-bottom-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid #25d366;
+  background: rgba(255, 255, 255, 0.9);
+  color: #128c7e;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(37, 211, 102, 0.2);
+  transition: all 0.2s ease;
+}
+
+.whatsapp-bottom-pill:hover {
+  background: #25d366;
+  color: #ffffff;
+  transform: scale(1.04);
 }
 
 /* Floating Audio Play/Pause Control */
@@ -986,8 +1012,13 @@ body {
   }
 
   .spread-pill {
-    padding: 0.25rem 0.6rem;
-    font-size: 0.64rem;
+    padding: 0.25rem 0.55rem;
+    font-size: 0.62rem;
+  }
+
+  .whatsapp-top-btn {
+    padding: 0.25rem 0.55rem;
+    font-size: 0.62rem;
   }
 
   .leaf-face,
@@ -1004,6 +1035,10 @@ body {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.25rem;
     width: 96%;
+  }
+
+  .whatsapp-bottom-pill span {
+    display: none;
   }
 
   .audio-btn-text {
