@@ -58,9 +58,9 @@ const invitationConfig = {
   // --------------------------------------------------------------------------
   venue: {
     name: "Engagement Venue",
-    addressLine1: "Join us in celebrating this blessed occasion",
-    cityStateZip: "Click below for exact location & directions",
-    googleMapsUrl: "https://www.google.com/maps",
+    addressLine1: "Hindupur, Sri Sathya Sai District",
+    cityStateZip: "Andhra Pradesh, 515200",
+    googleMapsUrl: "https://maps.app.goo.gl/TFqwUZuLNMvgzB3x8",
   },
 
   // --------------------------------------------------------------------------
@@ -79,7 +79,7 @@ const invitationConfig = {
   // --------------------------------------------------------------------------
   sharing: {
     whatsappShareText:
-      "✨ *Bismillahir Rahmanir Rahim* ✨\n\nAssalamu Alaikum! You are cordially invited to the Engagement Ceremony of *Sarithala Chandu & Vuluvalapalli Kulsum* on *December 13, 2026*.\n\nView the invitation & location here:",
+      "✨ *Bismillahir Rahmanir Rahim* ✨\n\nAssalamu Alaikum! You are cordially invited to the Engagement Ceremony of *Sarithala Chandu & Vuluvalapalli Kulsum* on *December 13, 2026*.\n\n📍 *Location:* https://maps.app.goo.gl/TFqwUZuLNMvgzB3x8\n\nView the invitation book here:",
   },
 
   // --------------------------------------------------------------------------
