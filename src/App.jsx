@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import invitationConfig from './config';
-import WelcomeScreen from './components/WelcomeScreen';
-import Navbar from './components/Navbar';
-import HeroSection from './components/HeroSection';
-import CountdownTimer from './components/CountdownTimer';
-import VenueSection from './components/VenueSection';
-import ShareAndRsvpSection from './components/ShareAndRsvpSection';
+import InvitationBook from './components/InvitationBook';
 import AudioPlayer from './components/AudioPlayer';
+import { HangingLantern } from './components/IslamicOrnaments';
 
 export default function App() {
-  const [isInvitationOpened, setIsInvitationOpened] = useState(false);
+  const [hasOpenedBook, setHasOpenedBook] = useState(false);
 
   // Dynamically keep the browser tab title synced with src/config.js
   useEffect(() => {
@@ -19,62 +15,29 @@ export default function App() {
     document.title = `Engagement Invitation | ${first} & ${second}`;
   }, []);
 
-  // Lock background scrolling while the Welcome Gate is closed
-  useEffect(() => {
-    if (!isInvitationOpened) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isInvitationOpened]);
-
-  const handleOpenInvitation = () => {
-    setIsInvitationOpened(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   return (
-    <div className="invitation-app">
-      {/* Subtle fixed Islamic geometric pattern backdrop */}
+    <div className="invitation-app book-mode-app">
+      {/* Subtle fixed floral & geometric lace backdrop */}
       <div className="islamic-geometric-backdrop" aria-hidden="true" />
 
-      {/* Welcome Screen with Bismillah & entrance animation */}
-      {!isInvitationOpened && (
-        <WelcomeScreen
+      {/* Decorative hanging lanterns */}
+      <div className="welcome-lanterns" aria-hidden="true">
+        <HangingLantern className="lantern-left" />
+        <HangingLantern className="lantern-right" />
+      </div>
+
+      {/* Interactive 3D Flip-Book Invitation */}
+      <main className="book-main-stage">
+        <InvitationBook
           config={invitationConfig}
-          onOpenInvitation={handleOpenInvitation}
+          onFirstOpen={() => setHasOpenedBook(true)}
         />
-      )}
-
-      {/* Top Navigation */}
-      <Navbar config={invitationConfig} />
-
-      {/* Main Content */}
-      <main
-        className={`main-invitation-content ${
-          isInvitationOpened ? 'main-invitation-content--revealed' : ''
-        }`}
-      >
-        {/* Greeting, Prominent Couple Names & Engagement Date */}
-        <HeroSection config={invitationConfig} />
-
-        {/* Live Countdown Timer */}
-        <CountdownTimer config={invitationConfig} />
-
-        {/* Engagement Venue & Google Maps Link */}
-        <VenueSection config={invitationConfig} />
-
-        {/* Blessing Dua & WhatsApp Share */}
-        <ShareAndRsvpSection config={invitationConfig} />
       </main>
 
       {/* Optional Background Music with Play/Pause Control */}
       <AudioPlayer
         config={invitationConfig}
-        triggerAutoPlay={isInvitationOpened}
+        triggerAutoPlay={hasOpenedBook}
       />
     </div>
   );
