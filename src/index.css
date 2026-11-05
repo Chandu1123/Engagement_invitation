@@ -2339,3 +2339,222 @@ body {
     font-size: clamp(1.08rem, 2.25vh, 1.38rem);
   }
 }
+
+
+/* ==========================================================================
+   STEP 0: INITIAL LANGUAGE SELECTION WELCOME GATE (.language-welcome-gate)
+   ========================================================================== */
+
+.lang-gate-viewport {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+}
+
+.language-welcome-gate {
+  position: relative;
+  width: min(92vw, 440px);
+  max-height: 88dvh;
+  padding: clamp(1rem, 2.8vh, 1.75rem) clamp(1rem, 3.5vw, 1.65rem);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.94) 0%, transparent 48%),
+    radial-gradient(circle at 82% 85%, rgba(242, 182, 198, 0.48) 0%, transparent 55%),
+    linear-gradient(
+      160deg,
+      rgba(255, 247, 250, 0.99) 0%,
+      rgba(251, 224, 233, 0.97) 52%,
+      rgba(244, 204, 217, 0.98) 100%
+    );
+  border: 2px solid var(--resin-border);
+  box-shadow:
+    0 22px 50px rgba(90, 22, 40, 0.28),
+    0 0 0 1px rgba(255, 255, 255, 0.65),
+    inset 0 0 28px rgba(255, 255, 255, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  z-index: 40;
+  animation: gateUnveil 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes gateUnveil {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.lang-gate-body {
+  position: relative;
+  z-index: 6;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.35rem, 1.1vh, 0.65rem);
+}
+
+.lang-gate-cameo-wrap {
+  position: relative;
+  margin: 0.1rem 0;
+}
+
+.lang-gate-cameo {
+  width: clamp(78px, 12.5vh, 102px);
+  height: clamp(78px, 12.5vh, 102px);
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2.5px solid var(--rose-gold-primary);
+  box-shadow:
+    0 8px 22px rgba(110, 35, 54, 0.24),
+    0 0 0 3px #fff9fb;
+  background: #fdf2f5;
+}
+
+.lang-gate-cameo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
+  display: block;
+}
+
+.lang-gate-couple-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.18rem;
+}
+
+.lang-gate-names-en {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2.8vh, 1.75rem);
+  font-weight: 400;
+  color: var(--ink-900);
+  line-height: 1.15;
+  margin: 0.1rem 0 0;
+}
+
+.lang-gate-names-en span {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--rose-gold-deep);
+  margin: 0 0.2rem;
+}
+
+.lang-gate-names-te {
+  font-family: 'Noto Serif Telugu', var(--font-serif);
+  font-size: clamp(0.84rem, 1.65vh, 1.02rem);
+  font-weight: 700;
+  color: var(--ink-800);
+  margin: 0;
+}
+
+.lang-gate-prompt-box {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(194, 120, 110, 0.35);
+  border-radius: 14px;
+  padding: clamp(0.45rem, 1.1vh, 0.7rem) 0.85rem;
+  width: 96%;
+  box-shadow: 0 4px 12px rgba(110, 35, 54, 0.06);
+}
+
+.lang-gate-prompt-en {
+  font-family: var(--font-serif);
+  font-size: clamp(0.82rem, 1.55vh, 0.98rem);
+  font-weight: 700;
+  color: var(--ink-900);
+  margin: 0 0 0.2rem;
+}
+
+.lang-gate-prompt-te {
+  font-family: 'Noto Serif Telugu', var(--font-serif);
+  font-size: clamp(0.76rem, 1.45vh, 0.92rem);
+  font-weight: 600;
+  color: var(--rose-gold-deep);
+  margin: 0;
+}
+
+.lang-gate-choice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+  width: 96%;
+  margin-top: 0.15rem;
+}
+
+.lang-choice-card {
+  appearance: none;
+  border: 1.5px solid rgba(194, 120, 110, 0.55);
+  border-radius: 16px;
+  padding: clamp(0.65rem, 1.6vh, 0.95rem) 0.5rem;
+  background: linear-gradient(145deg, #ffffff 0%, #fceef3 100%);
+  color: var(--ink-900);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.22rem;
+  cursor: pointer;
+  box-shadow:
+    0 6px 18px rgba(110, 35, 54, 0.14),
+    inset 0 0 12px rgba(255, 255, 255, 0.9);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+}
+
+.lang-choice-card:hover,
+.lang-choice-card:active {
+  transform: translateY(-3px) scale(1.02);
+  background: linear-gradient(135deg, #8c3349 0%, #5e1b2c 100%);
+  color: #fff9fb;
+  border-color: #ebb4a9;
+  box-shadow: 0 10px 24px rgba(110, 35, 54, 0.32);
+}
+
+.lang-choice-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #9e475b 0%, #6d2235 100%);
+  color: #fff9fb;
+  font-weight: 700;
+  font-size: 0.82rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(110, 35, 54, 0.25);
+}
+
+.lang-choice-card:hover .lang-choice-badge,
+.lang-choice-card:active .lang-choice-badge {
+  background: #fff9fb;
+  color: #6d2235;
+}
+
+.lang-choice-main {
+  font-size: clamp(0.98rem, 1.9vh, 1.15rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.lang-choice-card--te .lang-choice-main,
+.lang-choice-card--te .lang-choice-sub {
+  font-family: 'Noto Serif Telugu', var(--font-serif);
+}
+
+.lang-choice-sub {
+  font-family: var(--font-sans);
+  font-size: clamp(0.58rem, 1.05vh, 0.68rem);
+  font-weight: 600;
+  opacity: 0.85;
+}

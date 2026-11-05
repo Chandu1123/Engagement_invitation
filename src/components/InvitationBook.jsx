@@ -127,15 +127,17 @@ function CelestialCountdownDial({
  * InvitationBook
  *
  * Interactive Luxury Handcrafted Floral-Resin & Pearl Engagement Invitation Book:
- * - Bilingual Support: Instant toggle between English ('en') and Telugu ('te' - తెలుగు).
- * - Guaranteed to ALWAYS start on the Front Cover (Face of the Book) on both Phone and Desktop.
+ * - Starts with a Royal Welcome Language Gate asking the guest whether they want to read in English or Telugu (తెలుగు).
+ * - After selecting a language, unveils the Front Cover (Face of the Book) in their chosen language.
  * - Mobile View: 3D Page-Turning Hardcover Book (Cover -> Blessings -> Venue & Maps).
  * - Desktop View: Centered closed cover unfolding into a 2-sided open book spread.
- * - Creative Celestial Pearl & Rose-Gold Medallion Dials for the live countdown.
  */
 export default function InvitationBook({ config, onFirstOpen }) {
   const { couple, welcome, greeting, date, venue, dua, sharing, translations } =
     config;
+
+  // Step 0: Ask the user which language they want to read BEFORE showing the book
+  const [hasChosenLanguage, setHasChosenLanguage] = useState(false);
 
   // Language state: 'en' (English) or 'te' (Telugu)
   const [language, setLanguage] = useState('en');
@@ -238,8 +240,22 @@ export default function InvitationBook({ config, onFirstOpen }) {
     }
   }, [onFirstOpen]);
 
+  // Handler when the guest chooses their language on the initial welcome gate
+  const handleInitialLanguageChoice = (langCode) => {
+    lastNavTimeRef.current = Date.now();
+    setLanguage(langCode);
+    setIsOpen(false);
+    setMobilePage(0);
+    setHasChosenLanguage(true);
+    triggerOpenAudio();
+  };
+
   // Desktop open / close
   const handleOpenDesktop = useCallback(() => {
+    const now = Date.now();
+    if (now - lastNavTimeRef.current < 350) return;
+    lastNavTimeRef.current = now;
+
     if (!isOpen) {
       triggerOpenAudio();
     }
@@ -248,6 +264,10 @@ export default function InvitationBook({ config, onFirstOpen }) {
   }, [isOpen, triggerOpenAudio]);
 
   const handleCloseDesktop = useCallback(() => {
+    const now = Date.now();
+    if (now - lastNavTimeRef.current < 350) return;
+    lastNavTimeRef.current = now;
+
     setIsOpen(false);
     setMobilePage(0);
   }, []);
@@ -271,6 +291,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
   );
 
   const handleNext = useCallback(() => {
+    if (!hasChosenLanguage) return;
     if (isMobile) {
       if (mobilePage < 2) {
         handleGoToMobilePage(mobilePage + 1);
@@ -278,9 +299,16 @@ export default function InvitationBook({ config, onFirstOpen }) {
     } else {
       handleOpenDesktop();
     }
-  }, [isMobile, mobilePage, handleGoToMobilePage, handleOpenDesktop]);
+  }, [
+    hasChosenLanguage,
+    isMobile,
+    mobilePage,
+    handleGoToMobilePage,
+    handleOpenDesktop,
+  ]);
 
   const handlePrev = useCallback(() => {
+    if (!hasChosenLanguage) return;
     if (isMobile) {
       if (mobilePage > 0) {
         handleGoToMobilePage(mobilePage - 1);
@@ -288,11 +316,12 @@ export default function InvitationBook({ config, onFirstOpen }) {
     } else {
       handleCloseDesktop();
     }
-  }, [isMobile, mobilePage, handleGoToMobilePage, handleCloseDesktop]);
+  }, [hasChosenLanguage, isMobile, mobilePage, handleGoToMobilePage, handleCloseDesktop]);
 
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e) => {
+      if (!hasChosenLanguage) return;
       if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
         handleNext();
       } else if (e.key === 'ArrowLeft' || e.key === 'Escape') {
@@ -301,16 +330,17 @@ export default function InvitationBook({ config, onFirstOpen }) {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleNext, handlePrev]);
+  }, [hasChosenLanguage, handleNext, handlePrev]);
 
   // Mobile touch swipe gestures
   const handleTouchStart = (e) => {
+    if (!hasChosenLanguage) return;
     touchStartXRef.current = e.touches[0].clientX;
     touchStartYRef.current = e.touches[0].clientY;
   };
 
   const handleTouchEnd = (e) => {
-    if (touchStartXRef.current === null) return;
+    if (!hasChosenLanguage || touchStartXRef.current === null) return;
     const deltaX = e.changedTouches[0].clientX - touchStartXRef.current;
     const deltaY = Math.abs(
       e.changedTouches[0].clientY - (touchStartYRef.current || 0)
@@ -323,7 +353,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
     touchStartYRef.current = null;
   };
 
-  // Language switch handler (stops propagation so tapping on the cover doesn't flip page)
+  // Language switch handler once inside the book
   const handleSelectLanguage = (langCode, e) => {
     if (e) e.stopPropagation();
     setLanguage(langCode);
@@ -340,10 +370,107 @@ export default function InvitationBook({ config, onFirstOpen }) {
   };
 
   // --------------------------------------------------------------------------
+  // STEP 0: PRE-BOOK LANGUAGE SELECTION WELCOME SCREEN
+  // --------------------------------------------------------------------------
+  if (!hasChosenLanguage) {
+    return (
+      <div className="twoside-book-viewport lang-gate-viewport">
+        <div
+          className="language-welcome-gate"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="lang-gate-title"
+        >
+          <CornerOrnament position="top-left" />
+          <CornerOrnament position="top-right" />
+          <CornerOrnament position="bottom-left" />
+          <CornerOrnament position="bottom-right" />
+          <MosqueArchCrown className="page-arch" />
+
+          {/* Ambient Floating Rose Petals & Sparkles */}
+          <div className="cover-ambient-effects" aria-hidden="true">
+            <span className="floating-petal petal-1">🌸</span>
+            <span className="floating-petal petal-2">✨</span>
+            <span className="floating-petal petal-3">🌸</span>
+            <span className="floating-petal petal-4">✨</span>
+          </div>
+
+          <div className="lang-gate-body">
+            <p className="arabic-bismillah-cover" lang="ar" dir="rtl">
+              {welcome.bismillahArabic}
+            </p>
+
+            {/* 3D Couple Cameo Preview */}
+            <div className="lang-gate-cameo-wrap">
+              <span className="portrait-crown-pearl" aria-hidden="true" />
+              <div className="lang-gate-cameo">
+                <img
+                  src="./images/couple-3d.png"
+                  alt="Sarithala Chandu & Vuluvalapalli Kulsum"
+                  className="lang-gate-cameo-img"
+                />
+              </div>
+            </div>
+
+            {/* Bilingual Couple Header */}
+            <div className="lang-gate-couple-header">
+              <span className="welcome-badge-cover">
+                ✦ Engagement Invitation • నిశ్చితార్థ ఆహ్వానం ✦
+              </span>
+              <h1 id="lang-gate-title" className="lang-gate-names-en">
+                Sarithala Chandu <span>&amp;</span> Vuluvalapalli Kulsum
+              </h1>
+              <p className="lang-gate-names-te" lang="te">
+                సరితల చాందు &amp; వులువలపల్లి కుల్సుమ్
+              </p>
+            </div>
+
+            <FloralGoldDivider />
+
+            {/* Bilingual Prompt */}
+            <div className="lang-gate-prompt-box">
+              <p className="lang-gate-prompt-en">
+                In which language would you like to read the invitation?
+              </p>
+              <p className="lang-gate-prompt-te" lang="te">
+                మీరు ఆహ్వాన పత్రికను ఏ భాషలో చదవాలనుకుంటున్నారు?
+              </p>
+            </div>
+
+            {/* Two Luxury Language Choice Cards/Buttons */}
+            <div className="lang-gate-choice-grid">
+              <button
+                type="button"
+                className="lang-choice-card lang-choice-card--en"
+                onClick={() => handleInitialLanguageChoice('en')}
+              >
+                <span className="lang-choice-badge">A</span>
+                <span className="lang-choice-main">English</span>
+                <span className="lang-choice-sub">Read in English →</span>
+              </button>
+
+              <button
+                type="button"
+                className="lang-choice-card lang-choice-card--te"
+                onClick={() => handleInitialLanguageChoice('te')}
+                lang="te"
+              >
+                <span className="lang-choice-badge">అ</span>
+                <span className="lang-choice-main">తెలుగు</span>
+                <span className="lang-choice-sub">తెలుగులో చదవండి →</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // --------------------------------------------------------------------------
   // SHARED PAGE CONTENT RENDERERS
   // --------------------------------------------------------------------------
 
-  // 1. FRONT COVER (Face of the Book with 3D Animated Couple & Language Selector)
+  // 1. FRONT COVER (Face of the Book with 3D Animated Couple)
   const renderCoverContent = () => (
     <>
       <div className="cover-spine-trim" aria-hidden="true">
@@ -378,39 +505,11 @@ export default function InvitationBook({ config, onFirstOpen }) {
       </div>
 
       <div className="page-body cover-page-body">
-        {/* Top Bismillah Calligraphy & Language Selector */}
+        {/* Top Bismillah Calligraphy & Badge */}
         <div className="cover-header-group">
           <p className="arabic-bismillah-cover" lang="ar" dir="rtl">
             {welcome.bismillahArabic}
           </p>
-
-          {/* Interactive Language Selector Pill right on the Cover */}
-          <div
-            className="cover-lang-selector"
-            role="group"
-            aria-label="Choose Language / భాషను ఎంచుకోండి"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              className={`cover-lang-btn ${
-                language === 'en' ? 'cover-lang-btn--active' : ''
-              }`}
-              onClick={(e) => handleSelectLanguage('en', e)}
-            >
-              English
-            </button>
-            <button
-              type="button"
-              className={`cover-lang-btn cover-lang-btn--te ${
-                language === 'te' ? 'cover-lang-btn--active' : ''
-              }`}
-              onClick={(e) => handleSelectLanguage('te', e)}
-              lang="te"
-            >
-              తెలుగు
-            </button>
-          </div>
 
           <span className="welcome-badge-cover">
             ✦ {t.badgeText || welcome.badgeText} ✦
@@ -823,7 +922,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
   };
 
   // --------------------------------------------------------------------------
-  // RENDER COMPONENT
+  // RENDER COMPONENT (BOOK VIEWPORT)
   // --------------------------------------------------------------------------
   const isBackDisabled = isMobile ? mobilePage === 0 : !isOpen;
   const isNextDisabled = isMobile ? mobilePage === 2 : isOpen;
