@@ -32,11 +32,16 @@ function calculateTimeLeft(targetDateString, fallbackDateObj) {
 /**
  * Luxury Hardcover Invitation Book
  * - Starts with the closed front cover on the right side of the spine.
- * - When opened, the cover swings 180° to the left, revealing the full 2-sided book spread.
+ * - Cover is clean and pristine with no clunky open buttons.
+ * - Clear forward (Next →) and backward (← Previous) navigation controls:
+ *   - Side floating navigation arrows on left and right
+ *   - Bottom navigation bar with Previous / Next buttons & page indicators
+ *   - Top header spread switcher
+ *   - Page corner Back to Cover buttons
+ *   - Keyboard Left/Right arrow keys & touch swipe
  * - Left Page: Bismillah, Greeting, Couple Names & Islamic Blessing Dua.
  * - Right Page: Date, Live Countdown Timer, Venue & Google Maps button.
  * - Timing omitted per user request.
- * - WhatsApp share option is conveniently placed in the header & quick-actions bar.
  * - Zero webpage scrolling; fully responsive across all screens.
  */
 export default function InvitationBook({ config, onFirstOpen }) {
@@ -98,6 +103,10 @@ export default function InvitationBook({ config, onFirstOpen }) {
     }
   }, [isOpen, handleCloseBook, handleOpenBook]);
 
+  // Forward & Backward navigation
+  const handleNext = handleOpenBook;
+  const handlePrev = handleCloseBook;
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -142,21 +151,25 @@ export default function InvitationBook({ config, onFirstOpen }) {
       onTouchEnd={handleTouchEnd}
     >
       {/* Top Header Bar: Book state pills & WhatsApp share button */}
-      <header className="twoside-top-bar" aria-label="Invitation Controls">
-        <button
-          type="button"
-          className={`spread-pill ${!isOpen ? 'spread-pill--active' : ''}`}
-          onClick={handleCloseBook}
-        >
-          Book Cover
-        </button>
-        <button
-          type="button"
-          className={`spread-pill ${isOpen ? 'spread-pill--active' : ''}`}
-          onClick={handleOpenBook}
-        >
-          Open Invitation 📖
-        </button>
+      <header className="twoside-top-bar" aria-label="Invitation Navigation">
+        <div className="top-nav-pills">
+          <button
+            type="button"
+            className={`spread-pill ${!isOpen ? 'spread-pill--active' : ''}`}
+            onClick={handleCloseBook}
+            title="Book Cover"
+          >
+            Cover
+          </button>
+          <button
+            type="button"
+            className={`spread-pill ${isOpen ? 'spread-pill--active' : ''}`}
+            onClick={handleOpenBook}
+            title="Open Invitation Spread"
+          >
+            Inside Spread 📖
+          </button>
+        </div>
 
         {/* WhatsApp Share Button in Header */}
         <button
@@ -182,8 +195,35 @@ export default function InvitationBook({ config, onFirstOpen }) {
         </button>
       </header>
 
-      {/* 3D Two-Sided Book Stage */}
+      {/* 3D Two-Sided Book Stage with Side Navigation Controls */}
       <div className="twoside-scene">
+        {/* Left Side Navigation: Move Backward */}
+        <button
+          type="button"
+          className={`book-side-arrow book-side-arrow--prev ${
+            !isOpen ? 'is-disabled' : ''
+          }`}
+          onClick={handlePrev}
+          disabled={!isOpen}
+          aria-label="Previous (Move Backward)"
+          title="Move backward (← Left Arrow)"
+        >
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          <span className="side-arrow-label">Back</span>
+        </button>
+
         <div
           className={`twoside-book ${
             !isOpen ? 'twoside-book--closed' : 'twoside-book--open'
@@ -253,30 +293,6 @@ export default function InvitationBook({ config, onFirstOpen }) {
                   {date.dayOfWeek}, {date.monthName} {date.dayOfMonth},{' '}
                   {date.year}
                 </p>
-
-                {!isOpen && (
-                  <button
-                    type="button"
-                    className="btn-gold-primary open-book-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleOpenBook();
-                    }}
-                  >
-                    <span>Open Invitation Book</span>
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      aria-hidden="true"
-                    >
-                      <path d="M5 12h14M13 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                )}
               </div>
             </div>
 
@@ -329,12 +345,12 @@ export default function InvitationBook({ config, onFirstOpen }) {
                 <button
                   type="button"
                   className="page-corner-btn"
-                  onClick={handleCloseBook}
-                  title="Close book back to front cover"
+                  onClick={handlePrev}
+                  title="Move backward to cover"
                 >
-                  ← Cover
+                  ← Back to Cover
                 </button>
-                <span className="page-num-label">Left Page</span>
+                <span className="page-num-label">Blessings</span>
               </div>
             </div>
           </div>
@@ -447,46 +463,135 @@ export default function InvitationBook({ config, onFirstOpen }) {
             </div>
 
             <div className="page-footer-row">
-              <span className="page-num-label">Right Page</span>
+              <span className="page-num-label">Venue &amp; Date</span>
               <button
                 type="button"
                 className="page-corner-btn page-corner-btn--highlight"
-                onClick={handleCloseBook}
-                title="Close book back to front cover"
+                onClick={handlePrev}
+                title="Move backward to cover"
               >
-                Close Book ↺
+                ← Back to Cover
               </button>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Bottom Spread Indicator */}
-      <footer className="twoside-bottom-nav">
+        {/* Right Side Navigation: Move Forward */}
         <button
           type="button"
-          className="book-nav-btn"
-          onClick={handleToggleBook}
-          title={isOpen ? 'Close Book' : 'Open Book'}
+          className={`book-side-arrow book-side-arrow--next ${
+            isOpen ? 'is-disabled' : ''
+          }`}
+          onClick={handleNext}
+          disabled={isOpen}
+          aria-label="Next (Move Forward)"
+          title="Move forward (→ Right Arrow)"
         >
-          {isOpen ? '↺' : '📖'}
+          <span className="side-arrow-label">Next</span>
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Bottom Navigation Bar */}
+      <footer className="twoside-bottom-nav" aria-label="Book Navigation">
+        {/* Backward / Previous navigation button */}
+        <button
+          type="button"
+          className={`nav-btn-pill nav-btn-pill--prev ${
+            !isOpen ? 'nav-btn-pill--disabled' : ''
+          }`}
+          onClick={handlePrev}
+          disabled={!isOpen}
+          title="Move backward to cover"
+          aria-label="Move backward"
+        >
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          <span>Previous</span>
         </button>
 
-        <div className="book-dots" role="tablist">
+        {/* Spread indicator dots with labels */}
+        <div className="book-spread-nav" role="tablist">
           <button
             type="button"
-            className={`book-dot ${!isOpen ? 'book-dot--active' : ''}`}
+            className={`spread-dot-pill ${
+              !isOpen ? 'spread-dot-pill--active' : ''
+            }`}
             onClick={handleCloseBook}
-            title="Book Cover"
-          />
+            title="Go to Cover"
+            role="tab"
+            aria-selected={!isOpen}
+          >
+            <span className="dot-indicator" />
+            <span className="dot-label">Cover</span>
+          </button>
+          <span className="spread-separator">•</span>
           <button
             type="button"
-            className={`book-dot ${isOpen ? 'book-dot--active' : ''}`}
+            className={`spread-dot-pill ${
+              isOpen ? 'spread-dot-pill--active' : ''
+            }`}
             onClick={handleOpenBook}
-            title="Open Invitation"
-          />
+            title="Go to Inside Spread"
+            role="tab"
+            aria-selected={isOpen}
+          >
+            <span className="dot-indicator" />
+            <span className="dot-label">Inside</span>
+          </button>
         </div>
 
+        {/* Forward / Next navigation button */}
+        <button
+          type="button"
+          className={`nav-btn-pill nav-btn-pill--next ${
+            isOpen ? 'nav-btn-pill--disabled' : ''
+          }`}
+          onClick={handleNext}
+          disabled={isOpen}
+          title="Move forward into invitation"
+          aria-label="Move forward"
+        >
+          <span>Next</span>
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </button>
+
+        {/* WhatsApp Share in footer */}
         <button
           type="button"
           className="whatsapp-bottom-pill"
@@ -503,7 +608,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
           >
             <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
           </svg>
-          <span>Share Invitation</span>
+          <span>Share</span>
         </button>
       </footer>
     </div>
