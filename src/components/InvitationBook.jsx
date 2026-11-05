@@ -8,10 +8,11 @@ import {
 } from './IslamicOrnaments';
 
 /**
- * Helper to compute remaining time until target ISO date
+ * Compute remaining time until target ISO date
  */
 function calculateTimeLeft(targetDateString, fallbackDateObj) {
-  const targetTime = new Date(targetDateString).getTime() || fallbackDateObj.getTime();
+  const targetTime =
+    new Date(targetDateString).getTime() || fallbackDateObj.getTime();
   const now = Date.now();
   const difference = targetTime - now;
 
@@ -30,31 +31,39 @@ function calculateTimeLeft(targetDateString, fallbackDateObj) {
 
 /**
  * InvitationBook Component
- * Presents the Muslim Engagement Invitation as an interactive 3D Flip-Book
- * styled like a Frosted Blush-Pink Resin, Dried Floral & White Pearl keepsake book.
+ * A true 2-sided 3D opening book with hinged leaves (Front/Back faces)
+ * and zero webpage scrolling.
+ *
+ * Spreads:
+ * - spread 0: Closed Front Cover
+ * - spread 1: Open Book (Left: Invitation & Couple | Right: Countdown & Location)
+ * - spread 2: Open Book (Left: Islamic Blessing Dua | Right: Share on WhatsApp)
  */
 export default function InvitationBook({ config, onFirstOpen }) {
   const { couple, welcome, greeting, date, venue, dua, sharing } = config;
 
-  // 4 Pages in the Book:
-  // 0: Front Cover (Bismillah, Couple Names, Open Book CTA)
-  // 1: Page 1 - Islamic Greeting, Couple Names & Engagement Date Seal
-  // 2: Page 2 - Live Countdown Timer & Venue / Google Maps Location
-  // 3: Page 3 - Islamic Blessing Dua & WhatsApp Invitation Share
-  const TOTAL_PAGES = 4;
-  const [currentPage, setCurrentPage] = useState(0);
-  const [flipDirection, setFlipDirection] = useState(null); // 'next' | 'prev' | null
-  const [isFlipping, setIsFlipping] = useState(false);
-
+  // spread: 0 = Closed Cover, 1 = Open Spread 1 (Pages 1 & 2), 2 = Open Spread 2 (Pages 3 & 4)
+  const [spread, setSpread] = useState(0);
   const touchStartXRef = useRef(null);
 
   const firstPerson =
-    couple.order === 'bride-first' ? couple.brideFullName : couple.groomFullName;
+    couple.order === 'bride-first'
+      ? couple.brideFullName
+      : couple.groomFullName;
   const secondPerson =
-    couple.order === 'bride-first' ? couple.groomFullName : couple.brideFullName;
+    couple.order === 'bride-first'
+      ? couple.groomFullName
+      : couple.brideFullName;
 
   // Live countdown state
-  const fallbackDate = new Date(date.year, date.monthNumber - 1, date.dayOfMonth, 18, 0, 0);
+  const fallbackDate = new Date(
+    date.year,
+    date.monthNumber - 1,
+    date.dayOfMonth,
+    18,
+    0,
+    0
+  );
   const getInitialTime = useCallback(
     () => calculateTimeLeft(date.isoStartDateTime, fallbackDate),
     [date.isoStartDateTime, date.year, date.monthNumber, date.dayOfMonth]
@@ -70,42 +79,24 @@ export default function InvitationBook({ config, onFirstOpen }) {
 
   const padNumber = (num) => String(num).padStart(2, '0');
 
-  const goToPage = useCallback(
-    (targetPage) => {
-      if (isFlipping || targetPage === currentPage) return;
-      if (targetPage < 0 || targetPage >= TOTAL_PAGES) return;
-
-      if (currentPage === 0 && targetPage > 0 && onFirstOpen) {
+  const goToSpread = useCallback(
+    (targetSpread) => {
+      if (targetSpread < 0 || targetSpread > 2) return;
+      if (spread === 0 && targetSpread > 0 && onFirstOpen) {
         onFirstOpen();
       }
-
-      const direction = targetPage > currentPage ? 'next' : 'prev';
-      setFlipDirection(direction);
-      setIsFlipping(true);
-
-      setTimeout(() => {
-        setCurrentPage(targetPage);
-      }, 280);
-
-      setTimeout(() => {
-        setIsFlipping(false);
-        setFlipDirection(null);
-      }, 600);
+      setSpread(targetSpread);
     },
-    [currentPage, isFlipping, onFirstOpen]
+    [spread, onFirstOpen]
   );
 
   const handleNext = useCallback(() => {
-    if (currentPage < TOTAL_PAGES - 1) {
-      goToPage(currentPage + 1);
-    }
-  }, [currentPage, goToPage]);
+    if (spread < 2) goToSpread(spread + 1);
+  }, [spread, goToSpread]);
 
   const handlePrev = useCallback(() => {
-    if (currentPage > 0) {
-      goToPage(currentPage - 1);
-    }
-  }, [currentPage, goToPage]);
+    if (spread > 0) goToSpread(spread - 1);
+  }, [spread, goToSpread]);
 
   // Keyboard arrow navigation
   useEffect(() => {
@@ -117,7 +108,7 @@ export default function InvitationBook({ config, onFirstOpen }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleNext, handlePrev]);
 
-  // Touch swipe navigation on mobile
+  // Touch swipe navigation
   const handleTouchStart = (e) => {
     touchStartXRef.current = e.touches[0].clientX;
   };
@@ -125,372 +116,423 @@ export default function InvitationBook({ config, onFirstOpen }) {
   const handleTouchEnd = (e) => {
     if (touchStartXRef.current === null) return;
     const deltaX = e.changedTouches[0].clientX - touchStartXRef.current;
-    if (deltaX < -45) {
-      handleNext();
-    } else if (deltaX > 45) {
-      handlePrev();
-    }
+    if (deltaX < -40) handleNext();
+    if (deltaX > 40) handlePrev();
     touchStartXRef.current = null;
   };
 
   // Share on WhatsApp
-  const handleShareOnWhatsApp = () => {
+  const handleShareOnWhatsApp = (e) => {
+    e.stopPropagation();
     const currentUrl = window.location.href;
     const fullShareMessage = `${sharing.whatsappShareText}\n${currentUrl}`;
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(fullShareMessage)}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
+      fullShareMessage
+    )}`;
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   };
 
-  const pageLabels = ['Cover', 'Invitation', 'Date & Location', 'Dua & Share'];
-
   return (
-    <div className="book-stage-wrapper">
-      {/* Top Book Chapter Pills */}
-      <nav className="book-top-tabs" aria-label="Invitation Book Pages">
-        {pageLabels.map((label, index) => (
-          <button
-            key={label}
-            type="button"
-            onClick={() => goToPage(index)}
-            className={`book-tab-pill ${
-              currentPage === index ? 'book-tab-pill--active' : ''
-            }`}
-          >
-            <span className="book-tab-num">{index + 1}</span>
-            <span>{label}</span>
-          </button>
-        ))}
-      </nav>
-
-      {/* 3D Book Container */}
-      <div
-        className="book-3d-scene"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
-        <div
-          className={`book-frame ${
-            currentPage === 0 ? 'book-frame--cover' : 'book-frame--open'
-          } ${isFlipping ? `book-frame--flip-${flipDirection}` : ''}`}
+    <div
+      className="twoside-book-viewport"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Top Status & Quick Spread Controls */}
+      <div className="twoside-top-bar">
+        <button
+          type="button"
+          className={`spread-pill ${spread === 0 ? 'spread-pill--active' : ''}`}
+          onClick={() => goToSpread(0)}
         >
-          {/* Left Metallic Rose-Gold & Pearl Book Spine */}
-          <div className="book-spine" aria-hidden="true">
-            <div className="spine-ring spine-ring-1" />
-            <div className="spine-ring spine-ring-2" />
-            <div className="spine-ring spine-ring-3" />
-            <div className="spine-ring spine-ring-4" />
+          Book Cover
+        </button>
+        <button
+          type="button"
+          className={`spread-pill ${spread === 1 ? 'spread-pill--active' : ''}`}
+          onClick={() => goToSpread(1)}
+        >
+          Pages 1–2 • Invitation &amp; Location
+        </button>
+        <button
+          type="button"
+          className={`spread-pill ${spread === 2 ? 'spread-pill--active' : ''}`}
+          onClick={() => goToSpread(2)}
+        >
+          Pages 3–4 • Dua &amp; Share
+        </button>
+      </div>
+
+      {/* 3D Two-Sided Book Stage */}
+      <div className="twoside-scene">
+        <div
+          className={`twoside-book ${
+            spread === 0 ? 'twoside-book--closed' : 'twoside-book--open'
+          }`}
+        >
+          {/* Center Book Spine Crease (Visible when open) */}
+          <div className="twoside-center-spine" aria-hidden="true" />
+
+          {/* ================================================================
+              LEAF 1:
+              - Front Face: Book Front Cover (visible when closed)
+              - Back Face: Left Page 1 (Invitation & Couple Names, visible on spread 1)
+              ================================================================ */}
+          <div
+            className={`book-leaf leaf-1 ${
+              spread >= 1 ? 'book-leaf--turned' : ''
+            }`}
+            style={{ zIndex: spread >= 1 ? 20 : 30 }}
+          >
+            {/* LEAF 1 FRONT: BOOK COVER */}
+            <div className="leaf-face leaf-front cover-face">
+              <div className="cover-spine-trim" aria-hidden="true" />
+              <CornerOrnament position="top-left" />
+              <CornerOrnament position="top-right" />
+              <CornerOrnament position="bottom-left" />
+              <CornerOrnament position="bottom-right" />
+              <MosqueArchCrown className="page-arch" />
+
+              <div className="page-body">
+                <CrescentMoonIcon size={38} />
+                <p className="arabic-bismillah" lang="ar" dir="rtl">
+                  {welcome.bismillahArabic}
+                </p>
+                <p className="bismillah-translation">
+                  {welcome.bismillahTranslation}
+                </p>
+
+                <FloralGoldDivider />
+
+                <span className="welcome-badge">{welcome.badgeText}</span>
+
+                <div className="welcome-monogram-seal" aria-hidden="true">
+                  <span>{couple.monogram}</span>
+                </div>
+
+                <h1 className="book-cover-names">
+                  <span>{firstPerson}</span>
+                  <span className="book-ampersand">with</span>
+                  <span>{secondPerson}</span>
+                </h1>
+
+                <p className="welcome-date-pill">
+                  {date.dayOfWeek}, {date.monthName} {date.dayOfMonth},{' '}
+                  {date.year}
+                </p>
+
+                <button
+                  type="button"
+                  className="btn-gold-primary open-book-btn"
+                  onClick={() => goToSpread(1)}
+                >
+                  <span>Open Invitation Book</span>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M5 12h14M13 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* LEAF 1 BACK: LEFT PAGE 1 (GREETING & COUPLE) */}
+            <div className="leaf-face leaf-back page-left">
+              <CornerOrnament position="top-left" />
+              <CornerOrnament position="bottom-left" />
+              <MosqueArchCrown className="page-arch" />
+
+              <div className="page-body">
+                <p className="arabic-bismillah" lang="ar" dir="rtl">
+                  {welcome.bismillahArabic}
+                </p>
+                <p className="arabic-salam" lang="ar" dir="rtl">
+                  {greeting.salamArabic}
+                </p>
+                <p className="salam-transliteration">
+                  {greeting.salamTransliteration}
+                </p>
+
+                <p className="invitation-lead">{greeting.invitationLead}</p>
+
+                <div className="hero-couple-showcase">
+                  <span className="couple-role-pill">Groom</span>
+                  <h2 className="hero-couple-name">{firstPerson}</h2>
+
+                  <span className="hero-couple-conjunction">
+                    <IslamicStarIcon size={13} />
+                    <span>with</span>
+                    <IslamicStarIcon size={13} />
+                  </span>
+
+                  <span className="couple-role-pill">Bride</span>
+                  <h2 className="hero-couple-name">{secondPerson}</h2>
+                </div>
+
+                <div className="hero-date-banner">
+                  <span className="date-col-label">{date.dayOfWeek}</span>
+                  <span className="date-inline-highlight">
+                    {date.monthName} {date.dayOfMonth}, {date.year}
+                  </span>
+                  <span className="date-col-label">
+                    {date.startTimeDisplay}
+                  </span>
+                </div>
+              </div>
+
+              <div className="page-footer-row">
+                <button
+                  type="button"
+                  className="page-corner-btn"
+                  onClick={() => goToSpread(0)}
+                >
+                  ← Cover
+                </button>
+                <span className="page-num-label">Page 1</span>
+              </div>
+            </div>
           </div>
 
-          {/* Stacked Paper Edges on the Right */}
-          <div className="book-page-edges" aria-hidden="true" />
+          {/* ================================================================
+              LEAF 2:
+              - Front Face: Right Page 2 (Countdown & Location, visible on spread 1)
+              - Back Face: Left Page 3 (Islamic Blessing Dua, visible on spread 2)
+              ================================================================ */}
+          <div
+            className={`book-leaf leaf-2 ${
+              spread >= 2 ? 'book-leaf--turned' : ''
+            }`}
+            style={{ zIndex: spread >= 2 ? 25 : 20 }}
+          >
+            {/* LEAF 2 FRONT: RIGHT PAGE 2 (COUNTDOWN & VENUE) */}
+            <div className="leaf-face leaf-front page-right">
+              <CornerOrnament position="top-right" />
+              <CornerOrnament position="bottom-right" />
+              <MosqueArchCrown className="page-arch" />
 
-          {/* Active Book Page Surface */}
-          <article className="book-page-surface" aria-live="polite">
-            <CornerOrnament position="top-left" />
-            <CornerOrnament position="top-right" />
-            <CornerOrnament position="bottom-left" />
-            <CornerOrnament position="bottom-right" />
+              <div className="page-body">
+                <span className="section-eyebrow">Save The Date</span>
+                <h2 className="section-title">
+                  {date.monthName} {date.dayOfMonth}, {date.year}
+                </h2>
 
-            <MosqueArchCrown className="book-arch-header" />
-
-            <div className="book-page-content">
-              {/* ============================================================
-                  PAGE 0: BOOK FRONT COVER
-                  ============================================================ */}
-              {currentPage === 0 && (
-                <div className="book-page-inner page-cover">
-                  <div className="book-crescent-badge">
-                    <CrescentMoonIcon size={50} />
+                {timeLeft.isComplete ? (
+                  <div className="countdown-complete-banner">
+                    <h3>Alhamdulillah! Today is the Engagement Day</h3>
                   </div>
-
-                  <p className="arabic-bismillah" lang="ar" dir="rtl">
-                    {welcome.bismillahArabic}
-                  </p>
-                  <p className="bismillah-translation">
-                    {welcome.bismillahTranslation}
-                  </p>
-
-                  <FloralGoldDivider />
-
-                  <span className="welcome-badge">{welcome.badgeText}</span>
-
-                  <div className="welcome-monogram-seal" aria-hidden="true">
-                    <span>{couple.monogram}</span>
+                ) : (
+                  <div className="book-countdown-boxes" role="timer">
+                    {[
+                      { label: 'Days', value: padNumber(timeLeft.days) },
+                      { label: 'Hours', value: padNumber(timeLeft.hours) },
+                      { label: 'Mins', value: padNumber(timeLeft.minutes) },
+                      { label: 'Secs', value: padNumber(timeLeft.seconds) },
+                    ].map((unit) => (
+                      <div key={unit.label} className="countdown-unit-card">
+                        <span className="countdown-number">{unit.value}</span>
+                        <span className="countdown-label">{unit.label}</span>
+                      </div>
+                    ))}
                   </div>
+                )}
 
-                  <h1 className="book-cover-names">
-                    <span>{firstPerson}</span>
-                    <span className="book-ampersand">with</span>
-                    <span>{secondPerson}</span>
-                  </h1>
+                <FloralGoldDivider />
 
-                  <p className="welcome-date-pill">
-                    {date.dayOfWeek}, {date.monthName} {date.dayOfMonth},{' '}
-                    {date.year}
-                  </p>
-
-                  <p className="welcome-honor-note">
-                    {welcome.guestHonorLabel}
-                  </p>
-
-                  <button
-                    type="button"
-                    className="btn-gold-primary book-open-cta"
-                    onClick={handleNext}
-                  >
-                    <span>Open Invitation Book</span>
+                <div className="book-venue-block">
+                  <div className="venue-icon-badge" aria-hidden="true">
                     <svg
-                      width="18"
-                      height="18"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                    >
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                      <circle cx="12" cy="10" r="3" />
+                    </svg>
+                  </div>
+
+                  <span className="section-eyebrow">Location</span>
+                  <h3 className="book-venue-title">{venue.name}</h3>
+                  <p className="venue-clean-details">
+                    {date.dayOfWeek}, {date.monthName} {date.dayOfMonth},{' '}
+                    {date.year} • {date.startTimeDisplay}
+                  </p>
+                  <p className="venue-clean-address">
+                    {venue.addressLine1}
+                    {venue.cityStateZip ? ` — ${venue.cityStateZip}` : ''}
+                  </p>
+
+                  <a
+                    href={venue.googleMapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-gold-primary btn-compact"
+                  >
+                    <svg
+                      width="15"
+                      height="15"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2"
-                      aria-hidden="true"
                     >
-                      <path d="M5 12h14M13 5l7 7-7 7" />
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                      <circle cx="12" cy="10" r="3" />
                     </svg>
-                  </button>
+                    <span>Google Maps Location</span>
+                  </a>
                 </div>
-              )}
+              </div>
 
-              {/* ============================================================
-                  PAGE 1: GREETING, COUPLE & ENGAGEMENT DATE
-                  ============================================================ */}
-              {currentPage === 1 && (
-                <div className="book-page-inner page-invitation">
-                  <p className="arabic-salam" lang="ar" dir="rtl">
-                    {greeting.salamArabic}
-                  </p>
-                  <p className="salam-transliteration">
-                    {greeting.salamTransliteration}
-                  </p>
-
-                  <p className="invitation-lead">{greeting.invitationLead}</p>
-
-                  <div className="hero-couple-showcase">
-                    <span className="couple-role-pill">Groom</span>
-                    <h2 className="hero-couple-name">{firstPerson}</h2>
-
-                    <span className="hero-couple-conjunction">
-                      <IslamicStarIcon size={16} />
-                      <span>with</span>
-                      <IslamicStarIcon size={16} />
-                    </span>
-
-                    <span className="couple-role-pill">Bride</span>
-                    <h2 className="hero-couple-name">{secondPerson}</h2>
-                  </div>
-
-                  <div className="hero-date-banner">
-                    <div className="date-banner-col">
-                      <span className="date-col-label">{date.dayOfWeek}</span>
-                    </div>
-                    <div className="date-banner-center">
-                      <span className="date-month">{date.monthName}</span>
-                      <span className="date-day-number">{date.dayOfMonth}</span>
-                      <span className="date-year">{date.year}</span>
-                    </div>
-                    <div className="date-banner-col">
-                      <span className="date-col-label">
-                        {date.startTimeDisplay}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* ============================================================
-                  PAGE 2: COUNTDOWN TIMER & VENUE LOCATION
-                  ============================================================ */}
-              {currentPage === 2 && (
-                <div className="book-page-inner page-venue-countdown">
-                  <span className="section-eyebrow">Counting Down To</span>
-                  <h2 className="section-title">
-                    {date.monthName} {date.dayOfMonth}, {date.year}
-                  </h2>
-
-                  {timeLeft.isComplete ? (
-                    <div className="countdown-complete-banner">
-                      <h3>Alhamdulillah! Today is the Engagement Day</h3>
-                    </div>
-                  ) : (
-                    <div
-                      className="countdown-boxes book-countdown-boxes"
-                      role="timer"
-                      aria-live="polite"
-                    >
-                      {[
-                        { label: 'Days', value: padNumber(timeLeft.days) },
-                        { label: 'Hours', value: padNumber(timeLeft.hours) },
-                        { label: 'Minutes', value: padNumber(timeLeft.minutes) },
-                        { label: 'Seconds', value: padNumber(timeLeft.seconds) },
-                      ].map((unit) => (
-                        <div key={unit.label} className="countdown-unit-card">
-                          <span className="countdown-number">{unit.value}</span>
-                          <span className="countdown-label">{unit.label}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  <FloralGoldDivider />
-
-                  <div className="book-venue-block">
-                    <div
-                      className="venue-icon-badge venue-icon-centered"
-                      aria-hidden="true"
-                    >
-                      <svg
-                        width="26"
-                        height="26"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.7"
-                      >
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                        <circle cx="12" cy="10" r="3" />
-                      </svg>
-                    </div>
-
-                    <span className="section-eyebrow">Location</span>
-                    <h3 className="book-venue-title">{venue.name}</h3>
-                    <p className="venue-clean-details">
-                      <strong>
-                        {date.dayOfWeek}, {date.monthName} {date.dayOfMonth},{' '}
-                        {date.year}
-                      </strong>{' '}
-                      • {date.startTimeDisplay}
-                    </p>
-                    <p className="venue-clean-address">
-                      {venue.addressLine1}
-                      {venue.cityStateZip ? ` — ${venue.cityStateZip}` : ''}
-                    </p>
-
-                    <a
-                      href={venue.googleMapsUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn-gold-primary"
-                    >
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        aria-hidden="true"
-                      >
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                        <circle cx="12" cy="10" r="3" />
-                      </svg>
-                      <span>Open Location in Google Maps</span>
-                    </a>
-                  </div>
-                </div>
-              )}
-
-              {/* ============================================================
-                  PAGE 3: ISLAMIC BLESSING DUA & WHATSAPP SHARE
-                  ============================================================ */}
-              {currentPage === 3 && (
-                <div className="book-page-inner page-dua-share">
-                  <div className="dua-header-icon">
-                    <CrescentMoonIcon size={44} />
-                  </div>
-
-                  <span className="section-eyebrow">Dua &amp; Blessings</span>
-                  <p className="arabic-blessing" lang="ar" dir="rtl">
-                    {dua.blessingDuaArabic}
-                  </p>
-                  <p className="dua-translation">{dua.blessingDuaTranslation}</p>
-
-                  <FloralGoldDivider />
-
-                  <p className="dua-closing-note">{dua.closingNote}</p>
-
-                  <p className="footer-names book-closing-names">
-                    {firstPerson} &amp; {secondPerson}
-                  </p>
-                  <p className="footer-date">
-                    {date.monthName} {date.dayOfMonth}, {date.year}
-                  </p>
-
-                  <div className="book-share-actions">
-                    <button
-                      type="button"
-                      onClick={handleShareOnWhatsApp}
-                      className="btn-gold-primary"
-                    >
-                      <svg
-                        width="19"
-                        height="19"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.9"
-                        aria-hidden="true"
-                      >
-                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-                      </svg>
-                      <span>Share Invitation on WhatsApp</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => goToPage(0)}
-                      className="btn-book-secondary"
-                    >
-                      <span>Back to Book Cover</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Page Footer Number */}
-              <div className="book-page-number">
-                <span>
-                  Page {currentPage + 1} of {TOTAL_PAGES}
-                </span>
+              <div className="page-footer-row">
+                <span className="page-num-label">Page 2</span>
+                <button
+                  type="button"
+                  className="page-corner-btn page-corner-btn--highlight"
+                  onClick={() => goToSpread(2)}
+                >
+                  Turn Page →
+                </button>
               </div>
             </div>
-          </article>
+
+            {/* LEAF 2 BACK: LEFT PAGE 3 (ISLAMIC DUA & BLESSINGS) */}
+            <div className="leaf-face leaf-back page-left">
+              <CornerOrnament position="top-left" />
+              <CornerOrnament position="bottom-left" />
+              <MosqueArchCrown className="page-arch" />
+
+              <div className="page-body">
+                <CrescentMoonIcon size={38} />
+                <span className="section-eyebrow">Islamic Dua &amp; Blessings</span>
+
+                <FloralGoldDivider />
+
+                <p className="arabic-blessing" lang="ar" dir="rtl">
+                  {dua.blessingDuaArabic}
+                </p>
+                <p className="dua-translation">{dua.blessingDuaTranslation}</p>
+
+                <FloralGoldDivider />
+
+                <p className="dua-closing-note">{dua.closingNote}</p>
+              </div>
+
+              <div className="page-footer-row">
+                <button
+                  type="button"
+                  className="page-corner-btn page-corner-btn--highlight"
+                  onClick={() => goToSpread(1)}
+                >
+                  ← Prev Page
+                </button>
+                <span className="page-num-label">Page 3</span>
+              </div>
+            </div>
+          </div>
+
+          {/* ================================================================
+              STATIC RIGHT BASE PAGE:
+              - Right Page 4 (WhatsApp Share & Closing Seal, visible on spread 2)
+              ================================================================ */}
+          <div className="book-static-right page-right" style={{ zIndex: 10 }}>
+            <CornerOrnament position="top-right" />
+            <CornerOrnament position="bottom-right" />
+            <MosqueArchCrown className="page-arch" />
+
+            <div className="page-body">
+              <div className="welcome-monogram-seal" aria-hidden="true">
+                <span>{couple.monogram}</span>
+              </div>
+
+              <span className="section-eyebrow">With Love &amp; Prayers</span>
+              <h2 className="book-closing-names">
+                <span>{firstPerson}</span>
+                <span className="book-ampersand">&amp;</span>
+                <span>{secondPerson}</span>
+              </h2>
+
+              <p className="welcome-date-pill">
+                {date.dayOfWeek}, {date.monthName} {date.dayOfMonth},{' '}
+                {date.year}
+              </p>
+
+              <FloralGoldDivider />
+
+              <p className="dua-closing-note">
+                Share this digital engagement invitation with family &amp;
+                friends on WhatsApp:
+              </p>
+
+              <div className="book-share-actions">
+                <button
+                  type="button"
+                  onClick={handleShareOnWhatsApp}
+                  className="btn-gold-primary"
+                >
+                  <svg
+                    width="17"
+                    height="17"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                  </svg>
+                  <span>Share on WhatsApp</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => goToSpread(0)}
+                  className="btn-book-secondary"
+                >
+                  Close Book ↺
+                </button>
+              </div>
+            </div>
+
+            <div className="page-footer-row">
+              <span className="page-num-label">Page 4</span>
+              <button
+                type="button"
+                className="page-corner-btn"
+                onClick={() => goToSpread(0)}
+              >
+                Close Book
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Bottom Flip-Book Turn Controls */}
-      <div className="book-bottom-controls">
+      {/* Bottom Book Navigation Bar */}
+      <div className="twoside-bottom-bar">
         <button
           type="button"
           onClick={handlePrev}
-          disabled={currentPage === 0 || isFlipping}
+          disabled={spread === 0}
           className="book-nav-btn"
-          aria-label="Previous Page"
         >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path d="M19 12H5M11 19l-7-7 7-7" />
-          </svg>
-          <span>Prev Page</span>
+          ← {spread === 1 ? 'Close Cover' : 'Prev Page'}
         </button>
 
-        <div className="book-dots" role="tablist" aria-label="Page Indicators">
-          {pageLabels.map((label, idx) => (
+        <div className="book-dots">
+          {[0, 1, 2].map((idx) => (
             <button
-              key={label}
+              key={idx}
               type="button"
-              onClick={() => goToPage(idx)}
-              className={`book-dot ${currentPage === idx ? 'book-dot--active' : ''}`}
-              aria-label={`Go to ${label}`}
-              aria-selected={currentPage === idx}
+              onClick={() => goToSpread(idx)}
+              className={`book-dot ${spread === idx ? 'book-dot--active' : ''}`}
+              aria-label={`Go to spread ${idx + 1}`}
             />
           ))}
         </div>
@@ -498,21 +540,10 @@ export default function InvitationBook({ config, onFirstOpen }) {
         <button
           type="button"
           onClick={handleNext}
-          disabled={currentPage === TOTAL_PAGES - 1 || isFlipping}
+          disabled={spread === 2}
           className="book-nav-btn"
-          aria-label="Next Page"
         >
-          <span>Next Page</span>
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path d="M5 12h14M13 5l7 7-7 7" />
-          </svg>
+          {spread === 0 ? 'Open Book' : 'Next Page'} →
         </button>
       </div>
     </div>
