@@ -3,10 +3,8 @@ import invitationConfig from './config';
 import WelcomeScreen from './components/WelcomeScreen';
 import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
-import CoupleSection from './components/CoupleSection';
 import CountdownTimer from './components/CountdownTimer';
 import VenueSection from './components/VenueSection';
-import DuaSection from './components/DuaSection';
 import ShareAndRsvpSection from './components/ShareAndRsvpSection';
 import AudioPlayer from './components/AudioPlayer';
 
@@ -43,7 +41,7 @@ export default function App() {
       {/* Subtle fixed Islamic geometric pattern backdrop */}
       <div className="islamic-geometric-backdrop" aria-hidden="true" />
 
-      {/* Section 1: Welcome Screen with Bismillah & entrance animation */}
+      {/* Welcome Screen with Bismillah & entrance animation */}
       {!isInvitationOpened && (
         <WelcomeScreen
           config={invitationConfig}
@@ -60,26 +58,20 @@ export default function App() {
           isInvitationOpened ? 'main-invitation-content--revealed' : ''
         }`}
       >
-        {/* Sections 2, 3 & 4: Islamic Greeting, Prominent Couple Names & Engagement Date */}
+        {/* Greeting, Prominent Couple Names & Engagement Date */}
         <HeroSection config={invitationConfig} />
 
-        {/* Detailed Couple & Family Showcase */}
-        <CoupleSection config={invitationConfig} />
-
-        {/* Section 5: Live Countdown Timer & Add to Calendar */}
+        {/* Live Countdown Timer */}
         <CountdownTimer config={invitationConfig} />
 
-        {/* Section 6: Engagement Venue, Timings, Google Maps & Schedule */}
+        {/* Engagement Venue & Google Maps Link */}
         <VenueSection config={invitationConfig} />
 
-        {/* Section 7: Islamic Dua & Blessing Section */}
-        <DuaSection config={invitationConfig} />
-
-        {/* Section 8: WhatsApp Invitation Sharing & Direct RSVP */}
+        {/* Blessing Dua & WhatsApp Share */}
         <ShareAndRsvpSection config={invitationConfig} />
       </main>
 
-      {/* Section 9: Optional Background Music with Play/Pause Control */}
+      {/* Optional Background Music with Play/Pause Control */}
       <AudioPlayer
         config={invitationConfig}
         triggerAutoPlay={isInvitationOpened}

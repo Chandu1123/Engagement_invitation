@@ -9,18 +9,18 @@ import {
 
 /**
  * HeroSection Component
- * Combines the Islamic Greeting, Invitation Message, Prominent Couple Names
- * inside a royal Mosque Arch frame, and the Engagement Date highlight.
+ * Clean, focused presentation of Bismillah, Salam, Couple Names
+ * (Sarithala Chandu & Vuluvalapalli Kulsum), and the Engagement Date.
  */
 export default function HeroSection({ config }) {
   const firstPerson =
     config.couple.order === 'bride-first'
-      ? config.couple.brideFirstName
-      : config.couple.groomFirstName;
+      ? config.couple.brideFullName
+      : config.couple.groomFullName;
   const secondPerson =
     config.couple.order === 'bride-first'
-      ? config.couple.groomFirstName
-      : config.couple.brideFirstName;
+      ? config.couple.groomFullName
+      : config.couple.brideFullName;
 
   return (
     <section id="greeting" className="section-wrapper hero-section">
@@ -35,7 +35,7 @@ export default function HeroSection({ config }) {
 
           <div className="hero-inner">
             <div className="hero-crescent">
-              <CrescentMoonIcon size={58} />
+              <CrescentMoonIcon size={54} />
             </div>
 
             {/* Bismillah */}
@@ -57,24 +57,20 @@ export default function HeroSection({ config }) {
             </p>
 
             {/* Invitation Message */}
-            <h2 className="invitation-heading">
-              {config.greeting.invitationTitle}
-            </h2>
             <p className="invitation-lead">
               {config.greeting.invitationLead}
-            </p>
-            <p className="invitation-host-badge">
-              {config.greeting.familyHostLine}
             </p>
 
             {/* Prominent Couple Names */}
             <div className="hero-couple-showcase" aria-label="Couple Names">
+              <span className="couple-role-pill">Groom</span>
               <span className="hero-couple-name">{firstPerson}</span>
               <span className="hero-couple-conjunction">
-                <IslamicStarIcon size={20} />
+                <IslamicStarIcon size={18} />
                 <span>&amp;</span>
-                <IslamicStarIcon size={20} />
+                <IslamicStarIcon size={18} />
               </span>
+              <span className="couple-role-pill">Bride</span>
               <span className="hero-couple-name">{secondPerson}</span>
             </div>
 
@@ -91,36 +87,6 @@ export default function HeroSection({ config }) {
               <div className="date-banner-col">
                 <span className="date-col-label">{config.date.startTimeDisplay}</span>
               </div>
-            </div>
-
-            {config.date.hijriDate && (
-              <p className="hijri-date-tag">
-                <IslamicStarIcon size={14} />
-                <span>{config.date.hijriDate}</span>
-                <IslamicStarIcon size={14} />
-              </p>
-            )}
-
-            {/* Quick CTA buttons */}
-            <div className="hero-cta-group">
-              <a href="#venue" className="btn-gold-primary">
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  aria-hidden="true"
-                >
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                  <circle cx="12" cy="10" r="3" />
-                </svg>
-                <span>Venue &amp; Directions</span>
-              </a>
-              <a href="#share" className="btn-gold-outline">
-                <span>RSVP &amp; Share</span>
-              </a>
             </div>
           </div>
         </div>

@@ -499,6 +499,57 @@ body {
   background: rgba(212, 175, 55, 0.08);
 }
 
+.navbar-links-simple {
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+}
+
+.couple-role-pill {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--gold-champagne);
+  opacity: 0.9;
+}
+
+.venue-single-card {
+  position: relative;
+  background: linear-gradient(
+    165deg,
+    rgba(11, 59, 45, 0.85) 0%,
+    rgba(5, 31, 23, 0.96) 100%
+  );
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-card);
+  padding: 2.75rem 1.85rem;
+  box-shadow: var(--shadow-royal);
+  text-align: center;
+}
+
+.venue-icon-centered {
+  margin: 0 auto 1rem;
+}
+
+.venue-clean-details {
+  font-size: 1.1rem;
+  color: var(--gold-light);
+  margin-bottom: 0.5rem;
+}
+
+.venue-clean-address {
+  font-size: 0.98rem;
+  color: var(--ivory-200);
+  max-width: 520px;
+  margin: 0 auto 1.75rem;
+}
+
+.venue-btn-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
 .navbar-links-desktop {
   display: flex;
   align-items: center;
@@ -1387,7 +1438,58 @@ body {
    ========================================================================== */
 
 @media (max-width: 900px) {
-  .navbar-links-desktop {
+  .navbar-links-simple {
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+}
+
+.couple-role-pill {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--gold-champagne);
+  opacity: 0.9;
+}
+
+.venue-single-card {
+  position: relative;
+  background: linear-gradient(
+    165deg,
+    rgba(11, 59, 45, 0.85) 0%,
+    rgba(5, 31, 23, 0.96) 100%
+  );
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-card);
+  padding: 2.75rem 1.85rem;
+  box-shadow: var(--shadow-royal);
+  text-align: center;
+}
+
+.venue-icon-centered {
+  margin: 0 auto 1rem;
+}
+
+.venue-clean-details {
+  font-size: 1.1rem;
+  color: var(--gold-light);
+  margin-bottom: 0.5rem;
+}
+
+.venue-clean-address {
+  font-size: 0.98rem;
+  color: var(--ivory-200);
+  max-width: 520px;
+  margin: 0 auto 1.75rem;
+}
+
+.venue-btn-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.navbar-links-desktop {
     display: none;
   }
 
