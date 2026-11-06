@@ -1,12 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import invitationConfig from './config';
 import InvitationBook from './components/InvitationBook';
-import AudioPlayer from './components/AudioPlayer';
 import { HangingLantern } from './components/IslamicOrnaments';
 
 export default function App() {
-  const [hasOpenedBook, setHasOpenedBook] = useState(false);
-
   // Dynamically keep the browser tab title synced with src/config.js
   useEffect(() => {
     const { groomFirstName, brideFirstName, order } = invitationConfig.couple;
@@ -28,17 +25,8 @@ export default function App() {
 
       {/* Interactive 3D Flip-Book Invitation */}
       <main className="book-main-stage">
-        <InvitationBook
-          config={invitationConfig}
-          onFirstOpen={() => setHasOpenedBook(true)}
-        />
+        <InvitationBook config={invitationConfig} />
       </main>
-
-      {/* Optional Background Music with Play/Pause Control */}
-      <AudioPlayer
-        config={invitationConfig}
-        triggerAutoPlay={hasOpenedBook}
-      />
     </div>
   );
 }

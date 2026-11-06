@@ -188,13 +188,13 @@ const invitationConfig = {
   },
 
   // --------------------------------------------------------------------------
-  // 8. BACKGROUND AUDIO CONFIGURATION
+  // 8. BACKGROUND AUDIO CONFIGURATION (Disabled per user request)
   // --------------------------------------------------------------------------
   audio: {
-    enabled: true,
-    autoPlayOnOpen: true,
-    label: "Background Audio",
-    customMp3Url: "./audio/nasheed.mp3",
+    enabled: false,
+    autoPlayOnOpen: false,
+    label: "",
+    customMp3Url: "",
   },
 };
 
